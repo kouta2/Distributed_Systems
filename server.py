@@ -44,7 +44,7 @@ if __name__ == "__main__":
                         if data[0:4] == "?!@#":
                             CLIENTS[sock] = data[4:]
                         else:
-                            broadcast_data(sock, "\n" + '<' + CLIENTS[sock] + '> ' + data)                
+                            broadcast_data(sock, "\r" + '<' + CLIENTS[sock] + '> ' + data)                
                  
                 except:
                     if sock in CLIENTS.keys():
