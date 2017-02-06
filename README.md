@@ -1,5 +1,7 @@
 ------------------------README----------------------------
 
+SOURCES: http://www.binarytides.com/code-chat-application-server-client-sockets-python/
+
 to run the group chat, first run the server by typing the following:
 $ python server.py
 

@@ -15,8 +15,6 @@ def broadcast_data (sock, message):
                     del CLIENTS[socket]
  
 if __name__ == "__main__":
-     
-     
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(("0.0.0.0", PORT))
@@ -33,23 +31,21 @@ if __name__ == "__main__":
             if sock == server_socket:
                 sockfd, addr = server_socket.accept()
                 CLIENTS[sockfd] = ''
-                print "Client (%s, %s) connected" % addr
-                 
-                broadcast_data(sockfd, "[%s:%s] entered room\n" % addr)
-             
             else:
                 try:
                     data = sock.recv(RECV_BUFFER)
                     if data:
                         if data[0:4] == "?!@#":
                             CLIENTS[sock] = data[4:]
+                            print CLIENTS[sock] + " connected"
+                            broadcast_data(sockfd,"\r" + CLIENTS[sock] + " entered room\n")
                         else:
                             broadcast_data(sock, "\r" + '<' + CLIENTS[sock] + '> ' + data)                
                  
                 except:
                     if sock in CLIENTS.keys():
-                        broadcast_data(sock, "Client (%s, %s) is offline" % addr)
-                        print "Client (%s, %s) is offline" % addr
+                        broadcast_data(sock, CLIENTS[sock] + " is offline")
+                        print CLIENTS[sock] + " is offline"
                         sock.close()
                         del CLIENTS[sock]
                     continue
