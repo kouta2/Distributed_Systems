@@ -1,14 +1,12 @@
-# telnet program example
 import socket, select, string, sys
  
-def prompt() :
+def prompt():
     sys.stdout.write('<' + username + '> ')
     sys.stdout.flush()
  
-#main function
 if __name__ == "__main__":
      
-    if(len(sys.argv) != 4) :
+    if(len(sys.argv) != 4):
         print 'Usage : python client.py hostname port username'
         sys.exit()
      
@@ -18,9 +16,9 @@ if __name__ == "__main__":
      
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
      
-    try :
+    try:
         s.connect((host, port))
-    except :
+    except:
         print 'Unable to connect'
         sys.exit()
 
@@ -31,15 +29,12 @@ if __name__ == "__main__":
      
     while 1:
         socket_list = [sys.stdin, s]
-         
         read_sockets, write_sockets, error_sockets = select.select(socket_list , [], [])
-         
         for sock in read_sockets:
             if sock == s:
                 data = sock.recv(4096)
                 sys.stdout.write(data)
-             
-            else :
+            else:
                 msg = sys.stdin.readline()
                 s.send(msg)
             prompt()

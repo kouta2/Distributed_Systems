@@ -26,7 +26,6 @@ if __name__ == "__main__":
  
     while 1:
         read_sockets,write_sockets,error_sockets = select.select(CLIENTS.keys(),[],[])
- 
         for sock in read_sockets:
             if sock == server_socket:
                 sockfd, addr = server_socket.accept()
