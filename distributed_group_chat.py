@@ -70,7 +70,7 @@ if __name__=="__main__":
             s = GET_SOCKET(AF_INET, SOCK_STREAM)
             try:
                 s.connect((host, PORT))
-                SEND_SOCKS{s} = host
+                SEND_SOCKS[s] = host
                 s.send("?!@#" + username)
             except:
                 socket = s
