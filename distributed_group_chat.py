@@ -35,9 +35,9 @@ def handleNewConnections():
                     if data:
                         if data[0:4] == "?!@#":
                             CLIENTS[sock] = data[4:]
-                            # print "\r" + CLIENTS[sock] + " entered room"
+                            # sys.stdout.write("\r" + CLIENTS[sock] + " entered room")
                         else:
-                            print "\r" + "<" + CLIENTS[sock] + '> ' + data
+                            sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data)
                         prompt()
                 except:
                     s = sock
@@ -64,8 +64,6 @@ if __name__=="__main__":
     thread.start()
     HOST.remove(socket.gethostbyname(socket.gethostname())) 
     while 1:
-        prompt()
-        read_sockets, write_sockets, error_sockets = select.select([sys.stdin], [], [])
         for host in HOST:
             if host in SEND_SOCKS.values():
                 continue
@@ -77,11 +75,13 @@ if __name__=="__main__":
             except:
                 socket = s
                 # do nothing
+        prompt()
+        read_sockets, write_sockets, error_sockets = select.select([sys.stdin], [], [])
 
         for sock in read_sockets:
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
-                send_message(msg[:-1])
+                send_message(msg)
 
     thread.join()
 
