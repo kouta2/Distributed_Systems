@@ -51,6 +51,7 @@ def send_message(msg):
         try:
             s.send(msg)
         except:
+            sys.stdout.write("client message did not get sent")
             s = socket
 
 if __name__=="__main__":
