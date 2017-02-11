@@ -34,10 +34,10 @@ def handleNewConnections():
                     data = sock.recv(RECV_BUFFER)
                     if data:
                         if data[0:4] == "?!@#":
-                            CLIENTS[sock] = data[4:-1]
+                            CLIENTS[sock] = data[4:]
                             # print "\r" + CLIENTS[sock] + " entered room"
                         else:
-                            print "\r" + "<" + CLIENTS[sock] + '> ' + data[:-1]
+                            print "\r" + "<" + CLIENTS[sock] + '> ' + data
                         prompt()
                 except:
                     s = sock
@@ -81,7 +81,7 @@ if __name__=="__main__":
         for sock in read_sockets:
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
-                send_message(msg)
+                send_message(msg[:-1])
 
     thread.join()
 
