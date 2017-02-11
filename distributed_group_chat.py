@@ -36,11 +36,9 @@ def handleNewConnections():
                         if data[0:4] == "?!@#":
                             CLIENTS[sock] = data[4:]
                             print CLIENTS[sock] + " connected"
-                            # broadcast_data(sockfd,"\r" + CLIENTS[sock] + " entered room\n")
                             print "\r" + CLIENTS[sock] + " entered room"
                         else:
                             print "\r" + "<" + CLIENTS[sock] + '> ' + data
-                            # broadcast_data(sock, "\r" + '<' + CLIENTS[sock] + '> ' + data)
                 except:
                     s = sock
 
@@ -64,7 +62,6 @@ if __name__=="__main__":
 
     thread = threading.Thread(target = handleNewConnections)
     thread.start()
-    print socket.gethostname()
     HOST.remove(socket.gethostbyname(socket.gethostname())) 
     while 1:
         for host in HOST:
