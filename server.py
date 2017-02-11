@@ -2,7 +2,7 @@ import socket, select
  
 CLIENTS = {}
 RECV_BUFFER = 4096
-PORT = 5000
+PORT = 5001
 
 def broadcast_data (sock, message):
     for socket in CLIENTS.keys():
