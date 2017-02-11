@@ -32,13 +32,12 @@ def handleNewConnections():
             else: # message from another client
                 try:
                     data = sock.recv(RECV_BUFFER)
-                    if data:
-                        if data[0:4] == "?!@#":
-                            CLIENTS[sock] = data[4:]
-                            # sys.stdout.write("\r" + CLIENTS[sock] + " entered room" + "\n")
-                        else:
-                            sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data + "\n")
-                            prompt()
+                    if data[0:4] == "?!@#":
+                        CLIENTS[sock] = data[4:]
+                        # sys.stdout.write("\r" + CLIENTS[sock] + " entered room" + "\n")
+                    else:
+                        sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data + "\n")
+                        prompt()
                 except:
                     s = sock
 
