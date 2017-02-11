@@ -38,6 +38,7 @@ def handleNewConnections():
                             # sys.stdout.write("\r" + CLIENTS[sock] + " entered room" + "\n")
                         else:
                             sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data + "\n")
+                            prompt()
                 except:
                     s = sock
 
