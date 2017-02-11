@@ -81,6 +81,7 @@ if __name__=="__main__":
         for sock in read_sockets:
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
+                sys.stdout.write("message being sent is: " + msg)
                 send_message(msg)
 
     thread.join()
