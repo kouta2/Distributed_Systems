@@ -36,7 +36,7 @@ def handleNewConnections():
                         CLIENTS[sock] = data[4:]
                         # sys.stdout.write("\r" + CLIENTS[sock] + " entered room" + "\n")
                     else:
-                        sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data + "\n")
+                        sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data)
                         prompt()
                 except:
                     s = sock
@@ -51,7 +51,6 @@ def send_message(msg):
             s.send(msg)
         except:
             sys.stdout.write("client message did not get sent")
-            s = socket
 
 if __name__=="__main__":
     if(len(sys.argv) != 2):
@@ -81,7 +80,6 @@ if __name__=="__main__":
         for sock in read_sockets:
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
-                sys.stdout.write("message being sent is: " + msg)
                 send_message(msg)
 
     thread.join()
