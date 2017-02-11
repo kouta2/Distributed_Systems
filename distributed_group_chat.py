@@ -39,6 +39,7 @@ def handleNewConnections():
                             print "\r" + CLIENTS[sock] + " entered room"
                         else:
                             print "\r" + "<" + CLIENTS[sock] + '> ' + data
+                        prompt()
                 except:
                     s = sock
 
