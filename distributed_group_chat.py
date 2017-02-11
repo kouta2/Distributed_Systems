@@ -49,7 +49,7 @@ def prompt():
     sys.stdout.flush()
 
 def send_message(msg):
-    for socket in SEND_SOCKS:
+    for s in SEND_SOCKS:
         try:
             s.send(msg)
         except:
