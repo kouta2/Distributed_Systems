@@ -4,8 +4,8 @@ CLIENTS = {} # contains my server socket and everyone's client socket (5 sockets
 RECV_BUFFER = 4096
 PORT = 5001
 
-HOST = ["172.22.146.231", "172.22.146.233", "172.22.146.235", "172.22.146.237", "172.22.146.239"] # all of the hosts allowed in this group chat
-SEND_SOCKS = [] # all of my sockets I need to write to other servers (4 sockets)
+HOST = ["172.22.146.231", "172.22.146.233", "172.22.146.235", "172.22.146.237", "172.22.146.239"] # all of the hosts allowed in this group ch
+SEND_SOCKS = {} # all of my sockets I need to write to other servers (4 sockets)
 
 GET_SOCKET = socket.socket
 AF_INET = socket.AF_INET
@@ -35,7 +35,6 @@ def handleNewConnections():
                     if data:
                         if data[0:4] == "?!@#":
                             CLIENTS[sock] = data[4:]
-                            print CLIENTS[sock] + " connected"
                             print "\r" + CLIENTS[sock] + " entered room"
                         else:
                             print "\r" + "<" + CLIENTS[sock] + '> ' + data
@@ -66,11 +65,12 @@ if __name__=="__main__":
     HOST.remove(socket.gethostbyname(socket.gethostname())) 
     while 1:
         for host in HOST:
+            if host in SEND_SOCKS.values():
+                continue
             s = GET_SOCKET(AF_INET, SOCK_STREAM)
             try:
                 s.connect((host, PORT))
-                SEND_SOCKS.append(s)
-                HOST.remove(host)
+                SEND_SOCKS{s} = host
                 s.send("?!@#" + username)
             except:
                 socket = s
