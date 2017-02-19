@@ -93,7 +93,6 @@ if __name__=="__main__":
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
                 if msg != '<' + username + '>':
-                    print msg
                     send_message(msg)
 
     thread.join()
