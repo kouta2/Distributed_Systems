@@ -36,8 +36,9 @@ def handleNewConnections():
                         CLIENTS[sock] = data[4:]
                         # sys.stdout.write("\r" + CLIENTS[sock] + " entered room" + "\n")
                     else:
-                        sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data)
-                        prompt()
+                        if data != '<' + CLIENTS[sock] + '>':
+                            sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data)
+                            prompt()
                 except:
                     s = sock
 
@@ -91,7 +92,9 @@ if __name__=="__main__":
         for sock in read_sockets:
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
-                send_message(msg)
+                if msg != '<' + username + '>':
+                    print msg
+                    send_message(msg)
 
     thread.join()
 
