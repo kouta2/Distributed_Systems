@@ -50,7 +50,7 @@ def send_message(msg):
         try:
             s.send(msg)
         except:
-            sys.stdout.write("client message did not get sent")
+            sys.stdout.write("client message did not get sent\n")
 
 if __name__=="__main__":
     if(len(sys.argv) != 2):
@@ -76,6 +76,17 @@ if __name__=="__main__":
                 # do nothing
         prompt()
         read_sockets, write_sockets, error_sockets = select.select([sys.stdin], [], [])
+        for host in HOST:
+            if host in SEND_SOCKS.values():
+                continue
+            s = GET_SOCKET(AF_INET, SOCK_STREAM)
+            try:
+                s.connect((host, PORT))
+                SEND_SOCKS[s] = host
+                s.send("?!@#" + username)
+            except:
+                socket = s
+                # do nothing
 
         for sock in read_sockets:
             if sock == sys.stdin:
