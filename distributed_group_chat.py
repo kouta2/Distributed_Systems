@@ -93,7 +93,7 @@ if __name__=="__main__":
         for sock in read_sockets:
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
-                if msg != '<' + username + '>':
+                if len(msg) > 0:
                     send_message(msg)
 
     thread.join()
