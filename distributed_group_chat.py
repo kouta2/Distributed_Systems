@@ -35,12 +35,13 @@ def handleNewConnections():
                     if data[0:4] == "?!@#":
                         CLIENTS[sock] = data[4:]
                         # sys.stdout.write("\r" + CLIENTS[sock] + " entered room" + "\n")
+		    elif len(data) == 0:
+			del CLIENTS[sock]
                     else:
-                        if data != '<' + CLIENTS[sock] + '>':
-                            sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data)
-                            prompt()
+                        sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data)
+                        prompt()
                 except:
-                    s = sock
+		    del CLIENTS[sock]
 
 def prompt():
     sys.stdout.write('<' + username + '> ')
