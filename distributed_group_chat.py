@@ -35,13 +35,17 @@ def handleNewConnections():
                     if data[0:4] == "?!@#":
                         CLIENTS[sock] = data[4:]
                         # sys.stdout.write("\r" + CLIENTS[sock] + " entered room" + "\n")
-		    elif len(data) == 0:
-			del CLIENTS[sock]
+                    elif len(data) == 0:
+                        sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
+                        prompt()
+                        del CLIENTS[sock]
                     else:
                         sys.stdout.write("\r" + "<" + CLIENTS[sock] + '> ' + data)
                         prompt()
                 except:
-		    del CLIENTS[sock]
+                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
+                    prompt()
+                    del CLIENTS[sock]
 
 def prompt():
     sys.stdout.write('<' + username + '> ')
@@ -52,7 +56,8 @@ def send_message(msg):
         try:
             s.send(msg)
         except:
-            sys.stdout.write("client message did not get sent\n")
+            sock = s
+            # sys.stdout.write("client message did not get sent\n")
 
 if __name__=="__main__":
     if(len(sys.argv) != 2):
@@ -61,8 +66,10 @@ if __name__=="__main__":
 
     username = sys.argv[1]
 
-    thread = threading.Thread(target = handleNewConnections)
-    thread.start()
+    thread_connect = threading.Thread(target = handleNewConnections)
+    thread_connect.start()
+    # thread_fail = threading.Thread(target = handleFailureDetection)
+    # thread_fail.start()
     HOST.remove(socket.gethostbyname(socket.gethostname())) 
     while 1:
         for host in HOST:
@@ -96,18 +103,5 @@ if __name__=="__main__":
                 if len(msg) > 0:
                     send_message(msg)
 
-    thread.join()
-
-
-'''
-def broadcast_data (sock, message):
-    for socket in CLIENTS.keys():
-        if socket != server_socket and socket != sock :
-            try :
-                socket.send(message)
-            except :
-                if socket in CLIENTS:
-                    socket.close()
-                    del CLIENTS[socket]
-
-'''
+    thread_connect.join()
+    # thread_fail.join()
