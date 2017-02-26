@@ -21,11 +21,6 @@ number_of_send_messages = 0
 
 sequence_numbers_of_processes = [0 for x in range(10)]
 
-'''
-def handleFailureDetection():
-    for sock in SEND_SOCKS:
-        sock.send(")(*&^%$#@!")
-'''
 
 # handles new connections and messages from other clients
 def handleNewConnections(username):
@@ -43,10 +38,15 @@ def handleNewConnections(username):
         for sock in read_sockets:
             # new connection
             if sock == server_socket:
-                sockfd, addr = server_socket.accept()
-                CLIENTS[sockfd] = ''
+                try:
+                    sockfd, addr = server_socket.accept()
+                    username = sockfd.recv(RECV_BUF)
+                    CLIENTS[sockfd] = username
+                except:
+                    break
             else: # message from another client
                 data = sock.recv(RECV_BUFFER)
+                print('data is: ' + data)
                 if sock in DISCONNECTED_CLIENTS:
                     pass
                     # ignore messages that come from a client after he/she disconnected
@@ -57,8 +57,6 @@ def handleNewConnections(username):
                     del CLIENTS[sock]
                     DISCONNECTED_CLIENTS.add(sock)
                     sock.close()
-                elif len(data) > 3 and data[0:4] == '?!@#':
-                    CLIENTS[sock] = data[4:]
                 else:
                     data_process = data.split('<')
                     process_id = int(data_process[0])
@@ -81,6 +79,7 @@ def prompt():
     sys.stdout.flush()
 
 def multicast(msg):
+    print('multicast message is ' + msg)
     for s in SEND_SOCKS:
         try:
             s.send(msg)
@@ -88,6 +87,7 @@ def multicast(msg):
             pass
 
 def send_message(username, msg):
+    print('my send message is ' + msg)
     for s in SEND_SOCKS:
         string = str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg
         # print('message being sent is: ' + string)
@@ -104,7 +104,7 @@ def connect_to_send_socks(username):
         try:
             s.connect((host, PORT))
             SEND_SOCKS[s] = host
-            msg = '?!@#' + username
+            msg = username
             s.send(msg)
         except:
             pass
