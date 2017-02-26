@@ -72,7 +72,7 @@ def handleNewConnections():
                             msg = '<'
                             for i in range(2, len(data_process)):
                                 msg += data_process[i]
-                            # sys.stdout.write("\r" + msg)
+                            sys.stdout.write("\r" + msg)
                             prompt()
                 
 
@@ -113,8 +113,8 @@ if __name__=="__main__":
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
                 msg = '?!@#' + username
-                send_message(username, msg)
                 number_of_send_messages += 1
+                send_message(username, msg)
                 sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
             except:
                 socket = s
@@ -124,8 +124,8 @@ if __name__=="__main__":
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
                 if len(msg) > 1:
-                    send_message(username, msg)
                     number_of_send_messages += 1
+                    send_message(username, msg)
                     sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
                     
 
