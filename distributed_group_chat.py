@@ -60,6 +60,8 @@ def handleNewConnections():
                         check = data_process[2].split(' ')
                         if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
                             CLIENTS[sock] = (check[1])[4:]
+                            print('username I got: ' + (check[1])[4:])
+                            prompt()
                         else:
                             index = int(data_process[0]) - 1
                             sequence_numbers_of_processes[index] = max(sequence_numbers_of_processes[index], int(data_process[1]))
@@ -102,7 +104,7 @@ if __name__=="__main__":
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                msg = '?!@#' + username + '\n'
+                msg = '?!@#' + username
                 send_message(username, msg)
                 number_of_send_messages += 1
             except:
@@ -117,7 +119,7 @@ if __name__=="__main__":
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                msg = '?!@#' + username + '\n'
+                msg = '?!@#' + username
                 send_message(username, msg)
                 number_of_send_messages += 1
             except:
