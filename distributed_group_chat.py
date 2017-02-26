@@ -44,7 +44,7 @@ def handleNewConnections():
                 sockfd, addr = server_socket.accept()
                 CLIENTS[sockfd] = ''
             else: # message from another client
-                try:
+                # try:
                     data = sock.recv(RECV_BUFFER)
                     if sock in DISCONNECTED_CLIENTS:
                         s = sock
@@ -58,7 +58,7 @@ def handleNewConnections():
                         data_process = data.split('<')
                         index = int(data_process[0]) - 1
                         if sequence_numbers_of_processes[index] < int(data_process[1]):
-                            multicast(msg)
+                            multicast(data)
                             sequence_numbers_of_processes[index] = int(data_process[1])
                             check = data_process[2].split(' ')
                             if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
@@ -69,11 +69,7 @@ def handleNewConnections():
                                     msg += data_process[i]
                                 sys.stdout.write("\r" + msg)
                                 prompt()
-                except:
-                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
-                    prompt()
-                    del CLIENTS[sock]
-                    DISCONNECTED_CLIENTS.add(sock)
+                
 
 def prompt():
     sys.stdout.write('<' + username + '> ')
