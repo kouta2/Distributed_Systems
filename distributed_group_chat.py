@@ -58,8 +58,8 @@ def handleNewConnections():
                 else:
                     data_process = data.split('<')
                     process_id = int(data_process[0])
-                    if process_id == PROCESS_NUM:
-                        return
+                    # if process_id == PROCESS_NUM:
+                    #    return
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
                         multicast(data)
@@ -86,6 +86,7 @@ def multicast(msg):
 def send_message(username, msg):
     for s in SEND_SOCKS:
         s.send(str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg)
+
 if __name__=="__main__":
     if(len(sys.argv) != 2):
         print 'Usage : python distributed_group_chat.py username'
