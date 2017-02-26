@@ -79,7 +79,7 @@ if __name__=="__main__":
     prompt()
 
     while 1:
-        read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [])
+        read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [], 0)
 
         # try connecting to sockets before a send messages
         connect_to_send_socks()
@@ -114,5 +114,5 @@ if __name__=="__main__":
                         print_msg = '<'
                         for i in range(2, len(data_process)):
                             print_msg += data_process[i]
-                        sys.stdout.write('\r' + print_msg)
+                        sys.stdout.write('\r' + print_msg + '\n')
                         sys.stdout.flush()
