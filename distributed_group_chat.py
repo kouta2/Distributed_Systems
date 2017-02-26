@@ -40,7 +40,6 @@ def handleNewConnections():
 
     while 1:
         read_sockets,write_sockets,error_sockets = select.select(CLIENTS.keys(),[],[])
-        connect_to_send_socks()
         for sock in read_sockets:
             # new connection
             if sock == server_socket:
@@ -64,6 +63,7 @@ def handleNewConnections():
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
                         if process_id != PROCESS_NUM:
+                            connect_to_send_socks()
                             multicast(data)
                         sequence_numbers_of_processes[index] = int(data_process[1])
                         msg = '<'
