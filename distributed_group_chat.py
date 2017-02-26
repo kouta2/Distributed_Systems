@@ -62,7 +62,6 @@ def handleNewConnections(username):
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
                         if process_id != PROCESS_NUM:
-                            connect_to_send_socks(username)
                             multicast(data)
                         sequence_numbers_of_processes[index] = int(data_process[1])
                         msg = '<'
