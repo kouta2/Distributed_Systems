@@ -57,7 +57,8 @@ def handleNewConnections():
                     else:
                         sock.send(data)
                         data_process = data.split('<')
-                        if len(data_process[2]) > 3 and (data_process[2])[0:4] == '?!@#':
+                        check = data_process[2].split(' ')
+                        if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
                             CLIENTS[sock] = (data_process[2])[4:]
                         else:
                             index = int(data_process[0]) - 1
