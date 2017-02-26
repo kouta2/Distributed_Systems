@@ -12,6 +12,8 @@ DISCONNECTED_CLIENTS = set() # keeps track of the clients who have disconnected
 GET_SOCKET = socket.socket
 AF_INET = socket.AF_INET
 SOCK_STREAM = socket.SOCK_STREAM
+SOL_SOCKET = socket.SOL_SOCKET
+SO_REUSEADDR = socket.SO_REUSEADDR
 
 PROCESS_NUM = int(socket.gethostname()[15:17])
 
@@ -28,7 +30,7 @@ def handleFailureDetection():
 # handles new connections and messages from other clients
 def handleNewConnections():
     server_socket = GET_SOCKET(AF_INET, SOCK_STREAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     server_socket.bind(("0.0.0.0", PORT))
     server_socket.listen(10)
 
@@ -38,6 +40,20 @@ def handleNewConnections():
 
     while 1:
         read_sockets,write_sockets,error_sockets = select.select(CLIENTS.keys(),[],[])
+        for host in HOST:
+            if host in SEND_SOCKS.values():
+                continue
+            s = GET_SOCKET(AF_INET, SOCK_STREAM)
+            try:
+                s.connect((host, PORT))
+                SEND_SOCKS[s] = host
+                msg = '?!@#' + username
+                send_message(username, msg)
+                number_of_send_messages += 1
+                sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
+            except:
+                socket = s
+                # do nothing
         for sock in read_sockets:
             # new connection
             if sock == server_socket:
@@ -81,8 +97,10 @@ def multicast(msg):
 
 def send_message(username, msg):
     for s in SEND_SOCKS:
-        s.send(str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg)
-
+        try:
+            s.send(str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg)
+        except:
+            blah = s
 if __name__=="__main__":
     if(len(sys.argv) != 2):
         print 'Usage : python distributed_group_chat.py username'
