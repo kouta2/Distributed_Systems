@@ -60,7 +60,6 @@ def handleNewConnections():
                         check = data_process[2].split(' ')
                         if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
                             CLIENTS[sock] = (check[1])[4:]
-                            print('username I got: ' + (check[1])[4:])
                             prompt()
                         else:
                             index = int(data_process[0]) - 1
