@@ -51,13 +51,12 @@ def handleNewConnections():
                         # ignore messages that come from a client after he/she disconnected
                     elif len(data) == 0:
                         sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
-                        print("hi")
                         prompt()
                         del CLIENTS[sock]
                         DISCONNECTED_CLIENTS.add(sock)
                     else:
-                        data_process = data.split('<')
                         sock.send(data)
+                        data_process = data.split('<')
                         if len(data_process[2]) > 3 and (data_process[2])[0:4] == '?!@#':
                             CLIENTS[sock] = (data_process[2])[4:]
                         else:
@@ -99,7 +98,7 @@ if __name__=="__main__":
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                msg = "?!@#" + username
+                msg = '?!@#' + username + '\n'
                 send_message(username, msg)
                 number_of_send_messages += 1
             except:
@@ -114,7 +113,7 @@ if __name__=="__main__":
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                msg = "?!@#" + username
+                msg = '?!@#' + username + '\n'
                 send_message(username, msg)
                 number_of_send_messages += 1
             except:
