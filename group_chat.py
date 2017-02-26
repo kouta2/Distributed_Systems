@@ -78,7 +78,6 @@ if __name__=="__main__":
     connect_to_send_socks()
 
     while 1:
-        prompt()
         read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [])
 
         # try connecting to sockets before a send messages
@@ -87,11 +86,12 @@ if __name__=="__main__":
         for sock in read_sockets:
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
+                prompt()
                 if len(msg) > 1:
                     number_of_multicasts += 1
                     send_message(create_message(msg))
                     sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_multicasts
-
+    
             else:
                 msg = sock.recv(RECV_BUFFER)
                 if len(msg) == 0:
@@ -100,11 +100,13 @@ if __name__=="__main__":
                     del CLIENTS[sock]
                     DISCONNECTED_CLIENTS.add(sock)
                     sock.close()
+                    prompt()
                 else:
                     data_process = msg.split('<')
                     process_id = int(data_process[0])
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
+                        prompt()
                         if process_id != PROCESS_NUM:
                             send_message(msg)
                         sequence_numbers_of_processes[index] = int(data_process[1])
