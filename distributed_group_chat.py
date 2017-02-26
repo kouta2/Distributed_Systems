@@ -59,7 +59,7 @@ def handleNewConnections():
                         data_process = data.split('<')
                         check = data_process[2].split(' ')
                         if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
-                            CLIENTS[sock] = (data_process[2])[4:]
+                            CLIENTS[sock] = (check[1])[4:]
                         else:
                             index = int(data_process[0]) - 1
                             sequence_numbers_of_processes[index] = max(sequence_numbers_of_processes[index], int(data_process[1]))
