@@ -13,7 +13,7 @@ DISCONNECTED_CLIENTS = set() # keeps track of the clients who have disconnected
 
 PROCESS_NUM = int(socket.gethostname()[15:17])
 
-number_of_multicast = 0
+number_of_multicasts = 0
 
 sequence_numbers_of_processes = [0 for x in range(10)]
 
@@ -29,7 +29,7 @@ def handleConnections():
     
     while 1:
         read_sockets,write_sockets,error_sockets = select.select([server_socket],[],[])
-        for sock in read_socets:
+        for sock in read_sockets:
             try:
                 sockfd, addr = server_socket.accept()
                 username_client = sockfd.recv(RECV_BUFFER)
@@ -43,7 +43,7 @@ def prompt():
 
 
 def create_message(msg):
-    return str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + USERNAME + '> ' + msg
+    return str(PROCESS_NUM) + '<' + str(number_of_multicasts) + '<' + USERNAME + '> ' + msg
 
 def send_message(msg):
     for s in SEND_SOCKS:
@@ -88,7 +88,7 @@ if __name__=="__main__":
                 if len(msg) > 1:
                     number_of_multicasts += 1
                     send_message(create_message(msg))
-                    sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
+                    sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_multicasts
 
             else:
                 msg = sock.recv(RECV_BUFFER)
