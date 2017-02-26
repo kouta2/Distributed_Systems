@@ -29,6 +29,7 @@ def handleConnections():
     
     while 1:
         read_sockets,write_sockets,error_sockets = select.select([server_socket],[],[])
+        connect_to_send_socks()
         for sock in read_sockets:
             try:
                 sockfd, addr = server_socket.accept()
@@ -74,6 +75,7 @@ if __name__=="__main__":
 
     thread_connect = threading.Thread(target = handleConnections)
     thread_connect.start()
+    connect_to_send_socks()
 
     while 1:
         prompt()
