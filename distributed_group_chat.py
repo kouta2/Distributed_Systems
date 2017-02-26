@@ -57,22 +57,22 @@ def handleNewConnections():
                     DISCONNECTED_CLIENTS.add(sock)
                 else:
                     data_process = data.split('<')
-                    process_id = int(data_process[0])
-                    if process_id == PROCESS_NUM:
+                    check = data_process[2].split(' ')
+                    if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
+                        CLIENTS[sock] = (check[1])[4:]
                         return
+
+                    process_id = int(data_process[0])
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
+                        #if process_id != PROCESS_NUM:
                         multicast(data)
                         sequence_numbers_of_processes[index] = int(data_process[1])
-                        check = data_process[2].split(' ')
-                        if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
-                            CLIENTS[sock] = (check[1])[4:]
-                        else:
-                            msg = '<'
-                            for i in range(2, len(data_process)):
-                                msg += data_process[i]
-                            sys.stdout.write("\r" + msg)
-                            prompt()
+                        msg = '<'
+                        for i in range(2, len(data_process)):
+                            msg += data_process[i]
+                        sys.stdout.write("\r" + msg)
+                        prompt()
                 
 
 def prompt():
@@ -85,7 +85,9 @@ def multicast(msg):
 
 def send_message(username, msg):
     for s in SEND_SOCKS:
-        s.send(str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg)
+        string = str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg
+        print('message being sent is: ' + string)
+        s.send(string)
 
 if __name__=="__main__":
     if(len(sys.argv) != 2):
@@ -110,8 +112,8 @@ if __name__=="__main__":
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
                 msg = '?!@#' + username
-                number_of_send_messages += 1
-                send_message(username, msg)
+                string = str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg
+                s.send(string)
                 sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
             except:
                 socket = s
