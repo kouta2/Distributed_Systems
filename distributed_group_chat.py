@@ -96,7 +96,7 @@ def send_message(username, msg):
         except:
             pass
 
-def connect_to_send_socks():
+def connect_to_send_socks(username):
     for host in HOST:
         if host in SEND_SOCKS.values():
             continue
@@ -124,7 +124,7 @@ if __name__=="__main__":
     while 1:
         prompt()
         read_sockets, write_sockets, error_sockets = select.select([sys.stdin], [], [])
-        connect_to_send_socks()
+        connect_to_send_socks(username)
 
         for sock in read_sockets:
             if sock == sys.stdin:
