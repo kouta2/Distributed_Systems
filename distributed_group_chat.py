@@ -83,7 +83,7 @@ def multicast(msg):
 def send_message(username, msg):
     for s in SEND_SOCKS:
         string = str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg
-        print('message being sent is: ' + string)
+        # print('message being sent is: ' + string)
         s.send(string)
 
 if __name__=="__main__":
