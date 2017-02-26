@@ -76,6 +76,7 @@ if __name__=="__main__":
     thread_connect = threading.Thread(target = handleConnections)
     thread_connect.start()
     connect_to_send_socks()
+    prompt()
 
     while 1:
         read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [])
