@@ -113,6 +113,6 @@ if __name__=="__main__":
                         print_msg = '<'
                         for i in range(2, len(data_process)):
                             print_msg += data_process[i]
-                        sys.stdout.write('\r' + print_msg + '\n')
+                        sys.stdout.write('\r' + print_msg)
                         sys.stdout.flush()
                         prompt()
