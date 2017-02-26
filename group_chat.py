@@ -71,7 +71,7 @@ if __name__=="__main__":
         print 'Usage : python distributed_group_chat.py username'
         sys.exit()
 
-    username = sys.argv[1]
+    USERNAME = sys.argv[1]
 
     thread_connect = threading.Thread(target = handleConnections)
     thread_connect.start()
