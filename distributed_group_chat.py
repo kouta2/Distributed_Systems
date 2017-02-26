@@ -62,12 +62,13 @@ def handleNewConnections():
                             CLIENTS[sock] = (check[1])[4:]
                         else:
                             index = int(data_process[0]) - 1
-                            sequence_numbers_of_processes[index] = max(sequence_numbers_of_processes[index], int(data_process[1]))
-                            msg = '<'
-                            for i in range(2, len(data_process)):
-                                msg += data_process[i]
-                            sys.stdout.write("\r" + msg)
-                            prompt()
+                            if sequence_numbers_of_processes[index] < int(data_process[1]):
+                                sequence_numbers_of_processes[index] = int(data_process[1])
+                                msg = '<'
+                                for i in range(2, len(data_process)):
+                                    msg += data_process[i]
+                                sys.stdout.write("\r" + msg)
+                                prompt()
                 except:
                     sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
                     prompt()
@@ -105,6 +106,7 @@ if __name__=="__main__":
                 msg = '?!@#' + username
                 send_message(username, msg)
                 number_of_send_messages += 1
+                sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
             except:
                 socket = s
                 # do nothing
@@ -120,6 +122,7 @@ if __name__=="__main__":
                 msg = '?!@#' + username
                 send_message(username, msg)
                 number_of_send_messages += 1
+                sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
             except:
                 socket = s
                 # do nothing
@@ -130,6 +133,7 @@ if __name__=="__main__":
                 if len(msg) > 0:
                     send_message(username, msg)
                     number_of_send_messages += 1
+                    sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
 
     thread_connect.join()
     # thread_fail.join()
