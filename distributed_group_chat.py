@@ -58,8 +58,8 @@ def handleNewConnections():
                 else:
                     data_process = data.split('<')
                     process_id = int(data_process[0])
-                    # if process_id == PROCESS_NUM:
-                    #    return
+                    if process_id == PROCESS_NUM:
+                        return
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
                         multicast(data)
@@ -98,7 +98,7 @@ if __name__=="__main__":
     thread_connect.start()
     # thread_fail = threading.Thread(target = handleFailureDetection)
     # thread_fail.start()
-    HOST.remove(socket.gethostbyname(socket.gethostname())) 
+    # HOST.remove(socket.gethostbyname(socket.gethostname())) 
     while 1:
         prompt()
         read_sockets, write_sockets, error_sockets = select.select([sys.stdin], [], [])
