@@ -52,6 +52,7 @@ def handleNewConnections():
                     # ignore messages that come from a client after he/she disconnected
                 elif len(data) == 0:
                     sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
+                    sys.stdout.flush()
                     prompt()
                     del CLIENTS[sock]
                     DISCONNECTED_CLIENTS.add(sock)
@@ -70,6 +71,7 @@ def handleNewConnections():
                         for i in range(2, len(data_process)):
                             msg += data_process[i]
                         sys.stdout.write("\r" + msg)
+                        sys.stdout.flush()
                         prompt()
                 
 
