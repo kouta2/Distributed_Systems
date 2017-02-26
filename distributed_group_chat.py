@@ -69,7 +69,10 @@ def handleNewConnections():
                             sys.stdout.write("\r" + msg)
                             prompt()
                 except:
-                    print('in except')
+                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
+                    prompt()
+                    del CLIENTS[sock]
+                    DISCONNECTED_CLIENTS.add(sock)
 
 def prompt():
     sys.stdout.write('<' + username + '> ')
