@@ -56,11 +56,11 @@ def handleNewConnections():
                         DISCONNECTED_CLIENTS.add(sock)
                     else:
                         data_process = data.split('<')
+                        send_message(data)
                         if len(data_process[2]) > 3 and (data_process[2])[0:4] == '?!@#':
                             CLIENTS[sock] = (data_process[2])[4:]
                         else:
-                            send_message(data)
-                            index = int(data_process[0])
+                            index = int(data_process[0]) - 1
                             sequence_numbers_of_processes[index] = max(sequence_numbers_of_processes[index], int(data_process[1]))
                             msg = '<'
                             for i in range(2, len(data_process)):
