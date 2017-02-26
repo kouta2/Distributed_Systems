@@ -4,7 +4,7 @@ CLIENTS = {} # contains my server socket and everyone's client socket (5 sockets
 RECV_BUFFER = 4096
 PORT = 5001
 
-HOST = ["172.22.146.231", "172.22.146.233", "172.22.146.235", "172.22.146.237", "172.22.146.239"] # all of the hosts allowed in this group ch
+HOST = ["172.22.146.231", "172.22.146.233", "172.22.146.235", "172.22.146.237", "172.22.146.239", "172.22.146.241", "172.22.146.243", "172.22.146.245", "172.22.146.247", "172.22.146.249"] # all of the hosts allowed in this group ch
 SEND_SOCKS = {} # all of my sockets I need to write to other servers (4 sockets)
 
 DISCONNECTED_CLIENTS = set() # keeps track of the clients who have disconnected
