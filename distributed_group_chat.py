@@ -40,6 +40,7 @@ def handleNewConnections():
 
     while 1:
         read_sockets,write_sockets,error_sockets = select.select(CLIENTS.keys(),[],[])
+        connect_to_send_socks()
         for sock in read_sockets:
             # new connection
             if sock == server_socket:
@@ -86,6 +87,20 @@ def send_message(username, msg):
         # print('message being sent is: ' + string)
         s.send(string)
 
+def connect_to_send_socks():
+    for host in HOST:
+        if host in SEND_SOCKS.values():
+            continue
+        s = GET_SOCKET(AF_INET, SOCK_STREAM)
+        try:
+            s.connect((host, PORT))
+            SEND_SOCKS[s] = host
+            msg = '?!@#' + username
+            s.send(msg)
+        except:
+            socket = s
+            # do nothing
+
 if __name__=="__main__":
     if(len(sys.argv) != 2):
         print 'Usage : python distributed_group_chat.py username'
@@ -101,18 +116,7 @@ if __name__=="__main__":
     while 1:
         prompt()
         read_sockets, write_sockets, error_sockets = select.select([sys.stdin], [], [])
-        for host in HOST:
-            if host in SEND_SOCKS.values():
-                continue
-            s = GET_SOCKET(AF_INET, SOCK_STREAM)
-            try:
-                s.connect((host, PORT))
-                SEND_SOCKS[s] = host
-                msg = '?!@#' + username
-                s.send(msg)
-            except:
-                socket = s
-                # do nothing
+        connect_to_send_socks()
 
         for sock in read_sockets:
             if sock == sys.stdin:
