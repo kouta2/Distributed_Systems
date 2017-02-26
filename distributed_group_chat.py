@@ -57,7 +57,10 @@ def handleNewConnections():
                     DISCONNECTED_CLIENTS.add(sock)
                 else:
                     data_process = data.split('<')
-                    index = int(data_process[0]) - 1
+                    process_id = int(data_process[0])
+                    if process_id == PROCESS_NUM:
+                        return
+                    index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
                         multicast(data)
                         sequence_numbers_of_processes[index] = int(data_process[1])
@@ -68,7 +71,7 @@ def handleNewConnections():
                             msg = '<'
                             for i in range(2, len(data_process)):
                                 msg += data_process[i]
-                            sys.stdout.write("\r" + msg)
+                            # sys.stdout.write("\r" + msg)
                             prompt()
                 
 
@@ -119,7 +122,7 @@ if __name__=="__main__":
         for sock in read_sockets:
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
-                if len(msg) > 0:
+                if len(msg) > 1:
                     send_message(username, msg)
                     number_of_send_messages += 1
                     sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
