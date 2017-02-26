@@ -101,7 +101,8 @@ if __name__=="__main__":
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                s.send("?!@#" + username)
+                msg = "?!@#" + username
+                send_message(username, msg)
             except:
                 socket = s
                 # do nothing
