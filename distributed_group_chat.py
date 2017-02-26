@@ -44,29 +44,32 @@ def handleNewConnections():
                 sockfd, addr = server_socket.accept()
                 CLIENTS[sockfd] = ''
             else: # message from another client
-                data = sock.recv(RECV_BUFFER)
-                if sock in DISCONNECTED_CLIENTS:
-                    s = sock
-                    # ignore messages that come from a client after he/she disconnected
-                elif len(data) == 0:
-                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
-                    print("hi")
-                    prompt()
-                    del CLIENTS[sock]
-                    DISCONNECTED_CLIENTS.add(sock)
-                else:
-                    data_process = data.split('<')
-                    sock.send(data)
-                    if len(data_process[2]) > 3 and (data_process[2])[0:4] == '?!@#':
-                        CLIENTS[sock] = (data_process[2])[4:]
-                    else:
-                        index = int(data_process[0]) - 1
-                        sequence_numbers_of_processes[index] = max(sequence_numbers_of_processes[index], int(data_process[1]))
-                        msg = '<'
-                        for i in range(2, len(data_process)):
-                            msg += data_process[i]
-                        sys.stdout.write("\r" + msg)
+                try:
+                    data = sock.recv(RECV_BUFFER)
+                    if sock in DISCONNECTED_CLIENTS:
+                        s = sock
+                        # ignore messages that come from a client after he/she disconnected
+                    elif len(data) == 0:
+                        sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
+                        print("hi")
                         prompt()
+                        del CLIENTS[sock]
+                        DISCONNECTED_CLIENTS.add(sock)
+                    else:
+                        data_process = data.split('<')
+                        sock.send(data)
+                        if len(data_process[2]) > 3 and (data_process[2])[0:4] == '?!@#':
+                            CLIENTS[sock] = (data_process[2])[4:]
+                        else:
+                            index = int(data_process[0]) - 1
+                            sequence_numbers_of_processes[index] = max(sequence_numbers_of_processes[index], int(data_process[1]))
+                            msg = '<'
+                            for i in range(2, len(data_process)):
+                                msg += data_process[i]
+                            sys.stdout.write("\r" + msg)
+                            prompt()
+                except:
+                    print('in except')
 
 def prompt():
     sys.stdout.write('<' + username + '> ')
