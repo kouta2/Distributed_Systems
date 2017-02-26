@@ -85,10 +85,7 @@ def multicast(msg):
 
 def send_message(username, msg):
     for s in SEND_SOCKS:
-        try:
-            s.send(str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg)
-        except:
-            blah = s
+        s.send(str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg)
 if __name__=="__main__":
     if(len(sys.argv) != 2):
         print 'Usage : python distributed_group_chat.py username'
