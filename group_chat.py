@@ -96,6 +96,8 @@ if __name__=="__main__":
             else:
                 msg = sock.recv(RECV_BUFFER)
                 if len(msg) == 0:
+                    if sock not in CLIENTS.keys():
+                        continue
                     sys.stdout.write("\r" + CLIENTS[sock] + " disconnected and left the room\n")
                     sys.stdout.flush()
                     del CLIENTS[sock]
