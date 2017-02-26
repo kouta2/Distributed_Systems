@@ -62,8 +62,8 @@ def handleNewConnections():
                     process_id = int(data_process[0])
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
-                        #if process_id != PROCESS_NUM:
-                        multicast(data)
+                        if process_id != PROCESS_NUM:
+                            multicast(data)
                         sequence_numbers_of_processes[index] = int(data_process[1])
                         msg = '<'
                         for i in range(2, len(data_process)):
