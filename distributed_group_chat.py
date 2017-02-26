@@ -47,7 +47,6 @@ def handleNewConnections():
                 CLIENTS[sockfd] = ''
             else: # message from another client
                 data = sock.recv(RECV_BUFFER)
-                print(data)
                 if sock in DISCONNECTED_CLIENTS:
                     s = sock
                     # ignore messages that come from a client after he/she disconnected
