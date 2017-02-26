@@ -28,7 +28,7 @@ def handleFailureDetection():
 '''
 
 # handles new connections and messages from other clients
-def handleNewConnections():
+def handleNewConnections(username):
     server_socket = GET_SOCKET(AF_INET, SOCK_STREAM)
     server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
     server_socket.bind(("0.0.0.0", PORT))
@@ -65,7 +65,7 @@ def handleNewConnections():
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
                         if process_id != PROCESS_NUM:
-                            connect_to_send_socks()
+                            connect_to_send_socks(username)
                             multicast(data)
                         sequence_numbers_of_processes[index] = int(data_process[1])
                         msg = '<'
@@ -116,7 +116,7 @@ if __name__=="__main__":
 
     username = sys.argv[1]
 
-    thread_connect = threading.Thread(target = handleNewConnections)
+    thread_connect = threading.Thread(target = handleNewConnections, args=(username,))
     thread_connect.start()
     # thread_fail = threading.Thread(target = handleFailureDetection)
     # thread_fail.start()
