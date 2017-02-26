@@ -39,7 +39,7 @@ def handleConnections():
                 break
 
 def prompt():
-    sys.stdout.write('<' + username + '> ')
+    sys.stdout.write('<' + USERNAME + '> ')
     sys.stdout.flush()
 
 
