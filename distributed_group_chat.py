@@ -46,7 +46,6 @@ def handleNewConnections(username):
                     break
             else: # message from another client
                 data = sock.recv(RECV_BUFFER)
-                print('data is: ' + data)
                 if sock in DISCONNECTED_CLIENTS:
                     pass
                     # ignore messages that come from a client after he/she disconnected
@@ -87,7 +86,6 @@ def multicast(msg):
             pass
 
 def send_message(username, msg):
-    print('my send message is ' + msg)
     for s in SEND_SOCKS:
         string = str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg
         # print('message being sent is: ' + string)
