@@ -107,7 +107,6 @@ if __name__=="__main__":
                     process_id = int(data_process[0])
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
-                        prompt()
                         if process_id != PROCESS_NUM:
                             send_message(msg)
                         sequence_numbers_of_processes[index] = int(data_process[1])
@@ -116,3 +115,4 @@ if __name__=="__main__":
                             print_msg += data_process[i]
                         sys.stdout.write('\r' + print_msg + '\n')
                         sys.stdout.flush()
+                        prompt()
