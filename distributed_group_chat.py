@@ -40,7 +40,7 @@ def handleNewConnections(username):
             if sock == server_socket:
                 try:
                     sockfd, addr = server_socket.accept()
-                    username = sockfd.recv(RECV_BUF)
+                    username = sockfd.recv(RECV_BUFFER)
                     CLIENTS[sockfd] = username
                 except:
                     break
@@ -78,7 +78,6 @@ def prompt():
     sys.stdout.flush()
 
 def multicast(msg):
-    print('multicast message is ' + msg)
     for s in SEND_SOCKS:
         try:
             s.send(msg)
