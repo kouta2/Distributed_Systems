@@ -54,7 +54,7 @@ def handleNewConnections():
                         del CLIENTS[sock]
                         DISCONNECTED_CLIENTS.add(sock)
                     else:
-                        sys.stdout.write("\r" + data + '\n')
+                        sys.stdout.write("\r" + data)
                         prompt()
                 except:
                     sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
