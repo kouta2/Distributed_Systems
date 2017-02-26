@@ -48,14 +48,15 @@ def handleNewConnections():
             else: # message from another client
                 data = sock.recv(RECV_BUFFER)
                 if sock in DISCONNECTED_CLIENTS:
-                    s = sock
+                    pass
                     # ignore messages that come from a client after he/she disconnected
                 elif len(data) == 0:
-                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
+                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected and left the room\n")
                     sys.stdout.flush()
                     prompt()
                     del CLIENTS[sock]
                     DISCONNECTED_CLIENTS.add(sock)
+                    sock.close()
                 elif len(data) > 3 and data[0:4] == '?!@#':
                     CLIENTS[sock] = data[4:]
                 else:
