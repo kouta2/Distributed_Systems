@@ -79,13 +79,19 @@ def prompt():
 
 def multicast(msg):
     for s in SEND_SOCKS:
-        s.send(msg)
+        try:
+            s.send(msg)
+        except:
+            pass
 
 def send_message(username, msg):
     for s in SEND_SOCKS:
         string = str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg
         # print('message being sent is: ' + string)
-        s.send(string)
+        try:
+            s.send(string)
+        except:
+            pass
 
 def connect_to_send_socks():
     for host in HOST:
@@ -98,8 +104,7 @@ def connect_to_send_socks():
             msg = '?!@#' + username
             s.send(msg)
         except:
-            socket = s
-            # do nothing
+            pass
 
 if __name__=="__main__":
     if(len(sys.argv) != 2):
