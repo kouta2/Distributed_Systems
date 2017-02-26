@@ -55,13 +55,10 @@ def handleNewConnections():
                     prompt()
                     del CLIENTS[sock]
                     DISCONNECTED_CLIENTS.add(sock)
+                elif len(data) > 3 and data[0:4] == '?!@#':
+                    CLIENTS[sock] = data[4:]
                 else:
                     data_process = data.split('<')
-                    check = data_process[2].split(' ')
-                    if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
-                        CLIENTS[sock] = (check[1])[4:]
-                        return
-
                     process_id = int(data_process[0])
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
@@ -112,9 +109,7 @@ if __name__=="__main__":
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
                 msg = '?!@#' + username
-                string = str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg
-                s.send(string)
-                sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
+                s.send(msg)
             except:
                 socket = s
                 # do nothing
