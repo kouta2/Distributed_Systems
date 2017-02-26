@@ -15,6 +15,10 @@ SOCK_STREAM = socket.SOCK_STREAM
 
 PROCESS_NUM = int(socket.gethostname()[15:17])
 
+number_of_send_messages = 0
+
+sequence_numbers_of_processes = [0 for x in range(10)]
+
 '''
 def handleFailureDetection():
     for sock in SEND_SOCKS:
@@ -42,10 +46,7 @@ def handleNewConnections():
             else: # message from another client
                 try:
                     data = sock.recv(RECV_BUFFER)
-                    if data[0:4] == "?!@#":
-                        CLIENTS[sock] = data[4:]
-                        # sys.stdout.write("\r" + CLIENTS[sock] + " entered room" + "\n")
-                    elif sock in DISCONNECTED_CLIENTS:
+                    if sock in DISCONNECTED_CLIENTS:
                         s = sock
                         # ignore messages that come from a client after he/she disconnected
                     elif len(data) == 0:
@@ -54,8 +55,18 @@ def handleNewConnections():
                         del CLIENTS[sock]
                         DISCONNECTED_CLIENTS.add(sock)
                     else:
-                        sys.stdout.write("\r" + data)
-                        prompt()
+                        data_process = data.split('<')
+                        if len(data_process[2]) > 3 and (data_process[2])[0:4] == '?!@#':
+                            CLIENTS[sock] = (data_process[2])[4:]
+                        else:
+                            send_message(data)
+                            index = int(data_process[0])
+                            sequence_numbers_of_processes[index] = max(sequence_numbers_of_processes[index], int(data_process[1]))
+                            msg = '<'
+                            for i in range(2, len(data_process)):
+                                msg += data_process[i]
+                            sys.stdout.write("\r" + msg)
+                            prompt()
                 except:
                     sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
                     prompt()
@@ -68,11 +79,7 @@ def prompt():
 
 def send_message(username, msg):
     for s in SEND_SOCKS:
-        try:
-            s.send('<' + username + '> ' + msg)
-        except:
-            sock = s
-            # sys.stdout.write("client message did not get sent\n")
+        s.send(str(PROCESS_NUM) + '<' + str(number_of_send_messages) + '<' + username + '> ' + msg)
 
 if __name__=="__main__":
     if(len(sys.argv) != 2):
@@ -107,7 +114,8 @@ if __name__=="__main__":
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                s.send("?!@#" + username)
+                msg = "?!@#" + username
+                send_message(username, msg)
             except:
                 socket = s
                 # do nothing
@@ -117,6 +125,7 @@ if __name__=="__main__":
                 msg = sys.stdin.readline()
                 if len(msg) > 0:
                     send_message(username, msg)
+                    number_of_send_messages += 1
 
     thread_connect.join()
     # thread_fail.join()
