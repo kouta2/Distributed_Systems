@@ -55,15 +55,15 @@ def handleNewConnections():
                         del CLIENTS[sock]
                         DISCONNECTED_CLIENTS.add(sock)
                     else:
-                        sock.send(data)
                         data_process = data.split('<')
-                        check = data_process[2].split(' ')
-                        if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
-                            CLIENTS[sock] = (check[1])[4:]
-                        else:
-                            index = int(data_process[0]) - 1
-                            if sequence_numbers_of_processes[index] < int(data_process[1]):
-                                sequence_numbers_of_processes[index] = int(data_process[1])
+                        index = int(data_process[0]) - 1
+                        if sequence_numbers_of_processes[index] < int(data_process[1]):
+                            multicast(msg)
+                            sequence_numbers_of_processes[index] = int(data_process[1])
+                            check = data_process[2].split(' ')
+                            if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
+                                CLIENTS[sock] = (check[1])[4:]
+                            else:
                                 msg = '<'
                                 for i in range(2, len(data_process)):
                                     msg += data_process[i]
@@ -78,6 +78,10 @@ def handleNewConnections():
 def prompt():
     sys.stdout.write('<' + username + '> ')
     sys.stdout.flush()
+
+def multicast(msg):
+    for s in SEND_SOCKS:
+        s.send(msg)
 
 def send_message(username, msg):
     for s in SEND_SOCKS:
