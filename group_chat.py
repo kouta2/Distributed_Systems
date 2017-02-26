@@ -56,15 +56,14 @@ def send_message(msg):
 
 def connect_to_send_socks():
     for host in HOST:
-        if host in SEND_SOCKS.values():
-            continue
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            s.connect((host, PORT))
-            SEND_SOCKS[s] = host
-            s.send(USERNAME)
-        except:
-            pass
+        if host not in SEND_SOCKS.values():
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                s.connect((host, PORT))
+                SEND_SOCKS[s] = host
+                s.send(USERNAME)
+            except:
+                pass
 
 if __name__=="__main__":
     if(len(sys.argv) != 2):
