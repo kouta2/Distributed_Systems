@@ -40,51 +40,36 @@ def handleNewConnections():
 
     while 1:
         read_sockets,write_sockets,error_sockets = select.select(CLIENTS.keys(),[],[])
-        for host in HOST:
-            if host in SEND_SOCKS.values():
-                continue
-            s = GET_SOCKET(AF_INET, SOCK_STREAM)
-            try:
-                s.connect((host, PORT))
-                SEND_SOCKS[s] = host
-                msg = '?!@#' + username
-                send_message(username, msg)
-                number_of_send_messages += 1
-                sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
-            except:
-                socket = s
-                # do nothing
         for sock in read_sockets:
             # new connection
             if sock == server_socket:
                 sockfd, addr = server_socket.accept()
                 CLIENTS[sockfd] = ''
             else: # message from another client
-                # try:
-                    data = sock.recv(RECV_BUFFER)
-                    if sock in DISCONNECTED_CLIENTS:
-                        s = sock
-                        # ignore messages that come from a client after he/she disconnected
-                    elif len(data) == 0:
-                        sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
-                        prompt()
-                        del CLIENTS[sock]
-                        DISCONNECTED_CLIENTS.add(sock)
-                    else:
-                        data_process = data.split('<')
-                        index = int(data_process[0]) - 1
-                        if sequence_numbers_of_processes[index] < int(data_process[1]):
-                            multicast(data)
-                            sequence_numbers_of_processes[index] = int(data_process[1])
-                            check = data_process[2].split(' ')
-                            if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
-                                CLIENTS[sock] = (check[1])[4:]
-                            else:
-                                msg = '<'
-                                for i in range(2, len(data_process)):
-                                    msg += data_process[i]
-                                sys.stdout.write("\r" + msg)
-                                prompt()
+                data = sock.recv(RECV_BUFFER)
+                if sock in DISCONNECTED_CLIENTS:
+                    s = sock
+                    # ignore messages that come from a client after he/she disconnected
+                elif len(data) == 0:
+                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected\n")
+                    prompt()
+                    del CLIENTS[sock]
+                    DISCONNECTED_CLIENTS.add(sock)
+                else:
+                    data_process = data.split('<')
+                    index = int(data_process[0]) - 1
+                    if sequence_numbers_of_processes[index] < int(data_process[1]):
+                        multicast(data)
+                        sequence_numbers_of_processes[index] = int(data_process[1])
+                        check = data_process[2].split(' ')
+                        if len(check) > 1 and len(check[1]) >= 4 and (check[1])[0:4] == '?!@#':
+                            CLIENTS[sock] = (check[1])[4:]
+                        else:
+                            msg = '<'
+                            for i in range(2, len(data_process)):
+                                msg += data_process[i]
+                            sys.stdout.write("\r" + msg)
+                            prompt()
                 
 
 def prompt():
@@ -114,20 +99,6 @@ if __name__=="__main__":
     # thread_fail.start()
     HOST.remove(socket.gethostbyname(socket.gethostname())) 
     while 1:
-        for host in HOST:
-            if host in SEND_SOCKS.values():
-                continue
-            s = GET_SOCKET(AF_INET, SOCK_STREAM)
-            try:
-                s.connect((host, PORT))
-                SEND_SOCKS[s] = host
-                msg = '?!@#' + username
-                send_message(username, msg)
-                number_of_send_messages += 1
-                sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
-            except:
-                socket = s
-                # do nothing
         prompt()
         read_sockets, write_sockets, error_sockets = select.select([sys.stdin], [], [])
         for host in HOST:
@@ -152,6 +123,7 @@ if __name__=="__main__":
                     send_message(username, msg)
                     number_of_send_messages += 1
                     sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_send_messages
+                    
 
     thread_connect.join()
     # thread_fail.join()
