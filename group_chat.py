@@ -132,6 +132,8 @@ if __name__=="__main__":
                     number_of_multicasts += 1
                     local_messages[number_of_multicasts] = '<' + USERNAME + '> ' + msg
                     send_message(create_process_init_message())
+                else:
+                    prompt()
                 '''
                 msg = sys.stdin.readline()
                 prompt()
