@@ -142,8 +142,14 @@ if __name__=="__main__":
             else:
                 msg = sock.recv(RECV_BUFFER)
                 data_split = msg.split('<')
-                
-                if len(data_split[3]) > 0 and len(data_split[4]) > 0: # send process gave agreed_num for his msg. Add it to your p_queue
+                if len(msg) == 0:
+                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected and left the room\n")
+                    sys.stdout.flush()
+                    del CLIENTS[sock]
+                    DISCONNECTED_CLIENTS.add(sock)
+                    sock.close()
+                    prompt()    
+                elif len(data_split[3]) > 0 and len(data_split[4]) > 0: # send process gave agreed_num for his msg. Add it to your p_queue
                     process_id = int(data_split[0])
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_split[1]):
