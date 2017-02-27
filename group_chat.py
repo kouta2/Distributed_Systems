@@ -80,7 +80,7 @@ def check_if_messages_can_be_delievered():
     global message_number_we_are_on
     while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] == message_number_we_are_on:
         sys.stdout.write(ERASE_LINE + '\r')
-        sys.stdout.write(p_queue_deliverable.get()[1] + '\n')
+        sys.stdout.write(p_queue_deliverable.get()[1])
         sys.stdout.flush()
         message_number_we_are_on += 1
         prompt()
