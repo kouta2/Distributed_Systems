@@ -57,7 +57,8 @@ def send_message(msg):
 
 def connect_to_send_socks():
     for host in HOST:
-        if host not in SEND_SOCKS.values()[:]:
+        temp = SEND_SOCKS.values()[:]
+        if host not in temp:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 s.connect((host, PORT))
