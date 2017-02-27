@@ -23,7 +23,7 @@ USERNAME = ''
 ERASE_LINE = '\x1b[2K'
 CURSOR_UP_ONE_LEVEL = '\x1b[1A'
 
-message_number_we_are_on = 0 # counts number of delievered messages
+message_number_we_are_on = 1 # counts number of delievered messages
 p_queue_deliverable = Queue.PriorityQueue() # holds queue of processed msg's
 local_messages = {} # maps seq_num to msg
 received_proposals = {} # maps seq_num to tuple containing current max and number of people that have sent in proposals
@@ -143,6 +143,7 @@ if __name__=="__main__":
                 '''
             else:
                 msg = sock.recv(RECV_BUFFER)
+                print(msg)
                 data_split = msg.split('<')
                 if len(msg) == 0:
                     sys.stdout.write("\r" + CLIENTS[sock] + " disconnected and left the room\n")
