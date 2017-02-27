@@ -79,7 +79,7 @@ def send_proposed_msg(pid, seq_num):
 def check_if_messages_can_be_delievered():
     global message_number_we_are_on
     while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] == message_number_we_are_on:
-        # sys.stdout.write(ERASE_LINE + '\r')
+        sys.stdout.write(ERASE_LINE + '\r')
         sys.stdout.write(p_queue_deliverable.get()[1])
         sys.stdout.flush()
         message_number_we_are_on += 1
@@ -127,8 +127,8 @@ if __name__=="__main__":
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
                 if len(msg) > 1:
-                    # sys.stdout.write(CURSOR_UP_ONE_LEVEL)
-                    # sys.stdout.flush()
+                    sys.stdout.write(CURSOR_UP_ONE_LEVEL)
+                    sys.stdout.flush()
                     # prompt()
                     number_of_multicasts += 1
                     local_messages[number_of_multicasts] = '<' + USERNAME + '> ' + msg
