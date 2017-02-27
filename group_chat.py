@@ -127,7 +127,9 @@ if __name__=="__main__":
             if sock == sys.stdin:
                 msg = sys.stdin.readline()
                 if len(msg) > 1:
-                    print(CURSOR_UP_ONE_LEVEL + ERASE_LINE)
+                    sys.stdout.write(CURSOR_UP_ONE_LEVEL + ERASE_LINE)
+                    sys.stdout.flush()
+                    prompt()
                     number_of_multicasts += 1
                     local_messages[number_of_multicasts] = '<' + USERNAME + '> ' + msg
                     send_message(create_process_init_message())
