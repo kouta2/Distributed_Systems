@@ -7,7 +7,9 @@ PORT = 5002
 
 HOST = ["172.22.146.231", "172.22.146.233", "172.22.146.235", "172.22.146.237", "172.22.146.239", "172.22.146.241", "172.22.146.243", "172.22.146.245", "172.22.146.247", "172.22.146.249"] # all of the hosts allowed in this group cHat
 
-SEND_SOCKS = {} # all of my sockets I need to write to other servers (5 sockets cuz I have myself)
+SEND_SOCKS = [] # all of my sockets I need to write to other servers (5 sockets cuz I have myself)
+
+CONNECTED_SEND_SOCKS = []
 
 DISCONNECTED_CLIENTS = set() # keeps track of the clients who have disconnected
 
@@ -56,11 +58,12 @@ def send_message(msg):
 
 def connect_to_send_socks():
     for host in HOST:
-        if host not in SEND_SOCKS.values():
+        if host not in CONNECTED_SEND_SOCKS:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 s.connect((host, PORT))
-                SEND_SOCKS[s] = host
+                SEND_SOCKS.append(s)
+                CONNECTED_SEND_SOCKS.append(host)
                 s.send(USERNAME)
             except:
                 pass
