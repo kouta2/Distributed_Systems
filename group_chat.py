@@ -129,7 +129,6 @@ if __name__=="__main__":
                 if len(msg) > 1:
                     sys.stdout.write(CURSOR_UP_ONE_LEVEL)
                     sys.stdout.flush()
-                    # prompt()
                     number_of_multicasts += 1
                     local_messages[number_of_multicasts] = '<' + USERNAME + '> ' + msg
                     send_message(create_process_init_message())
