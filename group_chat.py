@@ -57,6 +57,8 @@ def send_message(msg):
 
 
 def connect_to_send_socks():
+    global CONNECTED_SEND_SOCKS
+    global SEND_SOCK
     for host in HOST:
         if host not in CONNECTED_SEND_SOCKS:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
