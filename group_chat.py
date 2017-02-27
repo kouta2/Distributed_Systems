@@ -143,7 +143,6 @@ if __name__=="__main__":
                 '''
             else:
                 msg = sock.recv(RECV_BUFFER)
-                print(msg)
                 data_split = msg.split('<')
                 if len(msg) == 0:
                     sys.stdout.write("\r" + CLIENTS[sock] + " disconnected and left the room\n")
