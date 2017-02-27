@@ -30,7 +30,6 @@ def handleConnections():
     
     while 1:
         read_sockets,write_sockets,error_sockets = select.select([server_socket],[],[])
-        connect_to_send_socks()
         for sock in read_sockets:
             try:
                 sockfd, addr = server_socket.accept()
@@ -57,8 +56,7 @@ def send_message(msg):
 
 def connect_to_send_socks():
     for host in HOST:
-        temp = SEND_SOCKS.values()[:]
-        if host not in temp:
+        if host not in SEND_SOCKS.values():
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 s.connect((host, PORT))
