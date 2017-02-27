@@ -47,7 +47,8 @@ def create_message(msg):
     return str(PROCESS_NUM) + '<' + str(number_of_multicasts) + '<' + USERNAME + '> ' + msg
 
 def send_message(msg):
-    for s in SEND_SOCKS:
+    
+    for s in SEND_SOCKS.keys()[::-1]:
         try:
             s.send(msg)
         except:
@@ -108,9 +109,9 @@ if __name__=="__main__":
                     process_id = int(data_process[0])
                     index = process_id - 1
                     if sequence_numbers_of_processes[index] < int(data_process[1]):
+                        sequence_numbers_of_processes[index] = int(data_process[1])
                         if process_id != PROCESS_NUM:
                             send_message(msg)
-                        sequence_numbers_of_processes[index] = int(data_process[1])
                         print_msg = '<'
                         for i in range(2, len(data_process)):
                             print_msg += data_process[i]
