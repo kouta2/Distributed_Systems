@@ -1,4 +1,6 @@
-import socket, select, sys, string, threading, Queue
+import socket, select, sys, string, threading, Queue, time, signal
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 CLIENTS = {} # contains my server socket and everyone's client socket (5 sockts)
 
@@ -27,8 +29,28 @@ p_queue_deliverable = Queue.PriorityQueue() # holds queue of processed msg's
 local_messages = {} # maps seq_num to msg
 received_proposals = {} # maps seq_num to tuple containing current max and number of people that have sent in proposals
 
+heartbeat_arr = {} # maps pid to (last time stamp of heartbeat, username, sock) # [-1 for x in range(10)]
+current_milli_time = lambda: int(round(time.time() * 1000))
+HEART_BEAT_TIME = .5
+WORST_CASE_DETECTION_TIME = 2 * HEART_BEAT_TIME + .2
+
+def check_for_failures():
+    for key in heartbeat_arr.keys():
+        if heartbeat_arr[key][0] != -1 and current_milli_time() - heartbeat_arr[key][0] > WORST_CASE_DETECTION_TIME:
+            heartbeat_arr[key] = (-1, heartbeat_arr[key][1], heartbeat_arr[key][2])
+            del CLIENTS[heartbeat_arr[key][2]]
+            send_message('f|' + str(key) + '|' + hearbeat_arr[i][1] + ' disconnected and left the chat')
+            # check if messages can be sent now that there is one less client
+            for key_proposals in received_proposals:
+                send_agreed_msg_if_ready(str(PROCESS_NUM), key_proposals)
+
+def handleFailures():
+    # send heartbeat msg
+    while 1:
+        time.sleep(HEART_BEAT_TIME)
+        send_message('we here boizzz|' + str(PROCESS_NUM))
+
 def handleConnections():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(("0.0.0.0", PORT))
     server_socket.listen(10)
@@ -40,10 +62,13 @@ def handleConnections():
         for sock in read_sockets:
             try:
                 sockfd, addr = server_socket.accept()
-                username_client = sockfd.recv(RECV_BUFFER)
-                CLIENTS[sockfd] = username_client
+                username_pid_client = sockfd.recv(RECV_BUFFER)
+                username_pid_split = username_pid_client.split('|')
+                CLIENTS[sockfd] = username_pid_split[0]
+                heartbeat_arr[int(username_pid_split[1])] = (-1, username_pid_split[0], sockfd)
             except:
                 break
+
 
 def prompt():
     sys.stdout.write('<' + USERNAME + '> ')
@@ -71,11 +96,11 @@ def send_proposed_msg(pid, seq_num):
 
 def check_if_messages_can_be_delievered():
     global message_number_we_are_on
-    while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] == message_number_we_are_on:
+    while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] <= message_number_we_are_on:
         sys.stdout.write(ERASE_LINE + '\r')
         sys.stdout.write(p_queue_deliverable.get()[2])
         sys.stdout.flush()
-        if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] == message_number_we_are_on:
+        if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] <= message_number_we_are_on:
             message_number_we_are_on -= 1
         message_number_we_are_on += 1
         prompt()
@@ -94,9 +119,21 @@ def connect_to_send_socks():
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                s.send(USERNAME)
+                s.send(USERNAME + '|' + str(PROCESS_NUM))
             except:
                 pass
+
+def signal_handler(signal, frame):
+    print('hi')
+    for elem in SEND_SOCKS.keys():
+        elem.close()
+    for elem in CLIENTS.keys():
+        if elem != sys.stdin:
+            elem.close()
+    server_socket.close()
+    thread_connect.join()
+    thread_fail.join()
+    sys.exit()
 
 if __name__=="__main__":
     if(len(sys.argv) != 2):
@@ -104,9 +141,15 @@ if __name__=="__main__":
         sys.exit()
 
     USERNAME = sys.argv[1]
+    
+    signal.signal(signal.SIGINT, signal_handler)
 
+    thread_fail = threading.Thread(target = handleFailures)
     thread_connect = threading.Thread(target = handleConnections)
+    thread_fail.DAEMON = True
+    thread_connect.DAEMON = True
     thread_connect.start()
+    thread_fail.start()
     connect_to_send_socks()
     prompt()
 
@@ -137,6 +180,18 @@ if __name__=="__main__":
                     DISCONNECTED_CLIENTS.add(sock)
                     sock.close()
                     prompt()
+                elif msg[0] == 'w':
+                    key = int(msg.split('|')[1])
+                    heartbeat_arr[key] = (current_milli_time(), heartbeat_arr[key][1], heartbeat_arr[key][2])
+                    check_for_failures()
+                elif msg[0] == 'f':
+                    failure_msg_split = msg.split('|')
+                    pid = int(failure_msg_split[1])
+                    if heartbeat_arr[pid][0] != -1:
+                        heartbeat_arr[pid] = (-1, heartbeat_arr[pid][1])
+                        sys.stdout.write('\r' + failure_msg_split[2])
+                        sys.stdout.flush()
+                        send_message(msg)
                 elif len(data_split[3]) > 0 and len(data_split[4]) > 0: # send process gave agreed_num for his msg. Add it to your p_queue
                     process_id = int(data_split[0])
                     index = process_id - 1

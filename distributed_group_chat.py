@@ -114,8 +114,8 @@ if __name__=="__main__":
 
     thread_connect = threading.Thread(target = handleNewConnections, args=(username,))
     thread_connect.start()
-    # thread_fail = threading.Thread(target = handleFailureDetection)
-    # thread_fail.start()
+    thread_fail = threading.Thread(target = handleFailureDetection)
+    thread_fail.start()
     # HOST.remove(socket.gethostbyname(socket.gethostname())) 
     while 1:
         prompt()
@@ -132,4 +132,4 @@ if __name__=="__main__":
                     
 
     thread_connect.join()
-    # thread_fail.join()
+    thread_fail.join()
