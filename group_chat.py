@@ -9,7 +9,6 @@ HOST = ["172.22.146.231", "172.22.146.233", "172.22.146.235", "172.22.146.237", 
 
 SEND_SOCKS = {} # all of my sockets I need to write to other servers (5 sockets cuz I have myself)
 
-
 DISCONNECTED_CLIENTS = set() # keeps track of the clients who have disconnected
 
 PROCESS_NUM = int(socket.gethostname()[15:17])
@@ -50,12 +49,6 @@ def prompt():
     sys.stdout.write('<' + USERNAME + '> ')
     sys.stdout.flush()
 
-'''
-def create_message(msg):
-    # PROCESS Number < sequence number < proposed number < agreed # < msg
-    return str(PROCESS_NUM) + '<' + str(number_of_multicasts) + '<' + '<' + USERNAME + '> ' + msg
-'''
-
 # PROCESS Number < sequence number < proposed number < agreed # < msg
 def create_process_init_message():
     return str(PROCESS_NUM) + '<' + str(number_of_multicasts) + '<' + '<' + '<'
@@ -80,8 +73,10 @@ def check_if_messages_can_be_delievered():
     global message_number_we_are_on
     while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] == message_number_we_are_on:
         sys.stdout.write(ERASE_LINE + '\r')
-        sys.stdout.write(p_queue_deliverable.get()[1])
+        sys.stdout.write(p_queue_deliverable.get()[2])
         sys.stdout.flush()
+        if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] == message_number_we_are_on:
+            message_number_we_are_on -= 1
         message_number_we_are_on += 1
         prompt()
 
@@ -91,7 +86,6 @@ def send_message(msg):
             s.send(msg)
         except:
             pass
-
 
 def connect_to_send_socks():
     for host in HOST:
@@ -111,14 +105,13 @@ if __name__=="__main__":
 
     USERNAME = sys.argv[1]
 
-
     thread_connect = threading.Thread(target = handleConnections)
     thread_connect.start()
     connect_to_send_socks()
     prompt()
 
     while 1:
-        read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [], 0)
+        read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [])
 
         # try connecting to sockets before a send messages
         connect_to_send_socks()
@@ -134,14 +127,6 @@ if __name__=="__main__":
                     send_message(create_process_init_message())
                 else:
                     prompt()
-                '''
-                msg = sys.stdin.readline()
-                prompt()
-                if len(msg) > 1:
-                    number_of_multicasts += 1
-                    send_message(create_message(msg))
-                    sequence_numbers_of_processes[PROCESS_NUM - 1] = number_of_multicasts
-                '''
             else:
                 msg = sock.recv(RECV_BUFFER)
                 data_split = msg.split('<')
@@ -151,7 +136,7 @@ if __name__=="__main__":
                     del CLIENTS[sock]
                     DISCONNECTED_CLIENTS.add(sock)
                     sock.close()
-                    prompt()    
+                    prompt()
                 elif len(data_split[3]) > 0 and len(data_split[4]) > 0: # send process gave agreed_num for his msg. Add it to your p_queue
                     process_id = int(data_split[0])
                     index = process_id - 1
@@ -159,8 +144,9 @@ if __name__=="__main__":
                         sequence_numbers_of_processes[index] = int(data_split[1])
                         if process_id != PROCESS_NUM:
                             send_message(msg)
-                        p_queue_deliverable.put((int(data_split[3]), '<' + data_split[4]))
+                        p_queue_deliverable.put((int(data_split[3]), int(data_split[0]), '<' + data_split[4]))
                         check_if_messages_can_be_delievered()
+                        
                 elif len(data_split[0]) > 0 and len(data_split[1]) > 0 and len(data_split[2]) > 0: # check if pid is our pid, if so, find max prop_num
                     if int(data_split[0]) == PROCESS_NUM:
                         seq_num = int(data_split[1])
@@ -175,29 +161,3 @@ if __name__=="__main__":
 
                 elif len(data_split[0]) > 0 and len(data_split[1]) > 0: # a process declared they want to send a msg, send a prop_num
                     send_proposed_msg(data_split[0], data_split[1])
-                '''
-                msg = sock.recv(RECV_BUFFER)
-                if len(msg) == 0:
-                    if sock not in CLIENTS.keys():
-                        continue
-                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected and left the room\n")
-                    sys.stdout.flush()
-                    del CLIENTS[sock]
-                    DISCONNECTED_CLIENTS.add(sock)
-                    sock.close()
-                    prompt()
-                else:
-                    data_process = msg.split('<')
-                    process_id = int(data_process[0])
-                    index = process_id - 1
-                    if sequence_numbers_of_processes[index] < int(data_process[1]):
-                        sequence_numbers_of_processes[index] = int(data_process[1])
-                        if process_id != PROCESS_NUM:
-                            send_message(msg)
-                        print_msg = '<'
-                        for i in range(2, len(data_process)):
-                            print_msg += data_process[i]
-                        sys.stdout.write('\r' + print_msg)
-                        sys.stdout.flush()
-                        prompt()
-                '''
