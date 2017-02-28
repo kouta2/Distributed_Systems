@@ -42,12 +42,12 @@ def check_for_failures():
     
             heartbeat_arr[key] = (-1, heartbeat_arr[key][1], heartbeat_arr[key][2])
             sock = heartbeat_arr[key][2]
-            addr = client_socket_to_addr[sock]
+            # addr = client_socket_to_addr[sock]
             sock.close()
-            send_sock = address_to_send_socket[addr]
-            send_sock.close()
-            del address_to_send_socket[addr]
-            del SEND_SOCKS[send_sock]
+            # send_sock = address_to_send_socket[addr]
+            # send_sock.close()
+            # del address_to_send_socket[addr]
+            # del SEND_SOCKS[send_sock]
             del CLIENTS[sock]
 
             failure_msg = heartbeat_arr[key][1] + ' disconnected and left the chat\n'
@@ -79,7 +79,7 @@ def handleConnections():
                 sockfd, addr = server_socket.accept()
                 username_pid_client = sockfd.recv(RECV_BUFFER)
                 username_pid_split = username_pid_client.split('|')
-                client_socket_to_addr[sockfd] = addr[0]
+                # client_socket_to_addr[sockfd] = addr[0]
                 CLIENTS[sockfd] = username_pid_split[0]
                 heartbeat_arr[int(username_pid_split[1])] = (-1, username_pid_split[0], sockfd)
             except:
@@ -139,7 +139,7 @@ def connect_to_send_socks():
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                address_to_send_socket[host] = s
+                # address_to_send_socket[host] = s
                 s.send(USERNAME + '|' + str(PROCESS_NUM))
             except:
                 pass
@@ -195,13 +195,16 @@ if __name__=="__main__":
                 else:
                     continue
                 data_split = msg.split('<')
+
                 if len(msg) == 0:
                     pass
+
                 elif msg[0] == 'w':
                     heartbeat_msg_split = msg.split('|')
                     key = int(heartbeat_msg_split[1])
                     heartbeat_arr[key] = (current_milli_time(), heartbeat_arr[key][1], heartbeat_arr[key][2])
                     check_for_failures()
+
                 elif msg[0] == 'f':
                     failure_msg_split = msg.split('|')
                     pid = int(failure_msg_split[1])
@@ -214,6 +217,7 @@ if __name__=="__main__":
                         failed_sock.close()
                         send_message(msg)
                         prompt()
+
                 elif len(data_split[3]) > 0 and len(data_split[4]) > 0: # send process gave agreed_num for his msg. Add it to your p_queue
                     process_id = int(data_split[0])
                     index = process_id - 1
