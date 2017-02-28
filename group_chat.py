@@ -107,8 +107,8 @@ def send_agreed_msg_if_ready(pid, seq_num):
         del local_messages[seq_num]
 
 def send_proposed_msg(pid, seq_num, ip_address):
-    address_to_send_socket[ip_address].send(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
-    # send_message(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
+    # address_to_send_socket[ip_address].send(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
+    send_message(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
 
 def check_if_messages_can_be_delievered():
     global message_number_we_are_on
