@@ -32,7 +32,7 @@ received_proposals = {} # maps seq_num to tuple containing current max and numbe
 heartbeat_arr = {} # maps pid to (last time stamp of heartbeat, username, sock) # [-1 for x in range(10)]
 current_milli_time = lambda: int(round(time.time() * 1000))
 HEART_BEAT_TIME = .5
-WORST_CASE_DETECTION_TIME = 3 * HEART_BEAT_TIME * 1000
+WORST_CASE_DETECTION_TIME = 4 * HEART_BEAT_TIME * 1000
 address_to_send_socket = {}
 client_socket_to_addr = {}
 
