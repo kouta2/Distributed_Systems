@@ -103,6 +103,7 @@ def create_agreed_number_message(pid, seq_num, agreed_num, msg):
     return pid + '<' + str(seq_num) + '<' + '<' + str(agreed_num) + msg + '<'
 
 def send_agreed_msg_if_ready(pid, seq_num):
+    global message_number_we_are_on
     if received_proposals[seq_num][1] == len(CLIENTS.keys()):
         message_number_we_are_on = max(message_number_we_are_on, received_proposals[seq_num][0])
         send_message(create_agreed_number_message(pid, seq_num, received_proposals[seq_num][0], local_messages[seq_num]))
@@ -110,6 +111,7 @@ def send_agreed_msg_if_ready(pid, seq_num):
         del local_messages[seq_num]
 
 def send_proposed_msg(pid, seq_num, ip_address):
+    global message_number_we_are_on
     # address_to_send_socket[ip_address].send(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
     message_number_we_are_on += 1
     send_message(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
