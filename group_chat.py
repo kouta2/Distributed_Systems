@@ -181,7 +181,8 @@ if __name__=="__main__":
                     sock.close()
                     prompt()
                 elif msg[0] == 'w':
-                    key = int(msg.split('|')[1])
+                    heartbeat_msg_split = msg.split('|')
+                    key = int(heartbeat_msg_split[1])
                     heartbeat_arr[key] = (current_milli_time(), heartbeat_arr[key][1], heartbeat_arr[key][2])
                     check_for_failures()
                 elif msg[0] == 'f':
