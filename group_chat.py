@@ -79,7 +79,7 @@ def handleConnections():
                 sockfd, addr = server_socket.accept()
                 username_pid_client = sockfd.recv(RECV_BUFFER)
                 username_pid_split = username_pid_client.split('|')
-                client_socket_to_addr[sockfd] = addr
+                client_socket_to_addr[sockfd] = addr[0]
                 CLIENTS[sockfd] = username_pid_split[0]
                 heartbeat_arr[int(username_pid_split[1])] = (-1, username_pid_split[0], sockfd)
             except:
