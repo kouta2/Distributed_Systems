@@ -118,8 +118,8 @@ def send_proposed_msg(pid, seq_num, ip_address):
 
 def check_if_messages_can_be_delievered():
     global message_number_we_are_on
-    global num_of_deliverables
-    while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] == num_of_deliverables:
+    global num_deliverables
+    while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] == num_deliverables:
         sender_sock = p_queue_deliverable.queue[0][1] 
         if heartbeat_arr[sender_sock][0] == -1:
             p_queue_deliverable.get()
@@ -127,9 +127,9 @@ def check_if_messages_can_be_delievered():
             sys.stdout.write(ERASE_LINE + '\r')
             sys.stdout.write(p_queue_deliverable.get()[2])
             sys.stdout.flush()
-            if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] == num_of_deliverables:
-                num_of_deliverables -= 1
-            num_of_deliverables += 1
+            if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] == num_deliverables:
+                num_deliverables -= 1
+            num_deliverables += 1
             prompt()
 
 def send_message(msg):
@@ -228,7 +228,7 @@ if __name__=="__main__":
                         sequence_numbers_of_processes[index] = int(data_split[1])
                         if process_id != PROCESS_NUM:
                             send_message(msg)
-                        nummber_of_message_we_are_on = max(number_of_message_we_are_on, int(data_split[3]))
+                        message_nummber_we_are_on = max(message_number_we_are_on, int(data_split[3]))
                         p_queue_msg = '<'
                         for i in range(4, len(data_split) - 1):
                             p_queue_msg += data_split[i]
