@@ -111,7 +111,7 @@ if __name__=="__main__":
     prompt()
 
     while 1:
-        read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [])
+        read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [], 0)
 
         # try connecting to sockets before a send messages
         connect_to_send_socks()
