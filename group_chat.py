@@ -32,7 +32,7 @@ received_proposals = {} # maps seq_num to tuple containing current max and numbe
 heartbeat_arr = {} # maps pid to (last time stamp of heartbeat, username, sock) # [-1 for x in range(10)]
 current_milli_time = lambda: int(round(time.time() * 1000))
 HEART_BEAT_TIME = .5
-WORST_CASE_DETECTION_TIME = 2 * HEART_BEAT_TIME * 1000 + .2
+WORST_CASE_DETECTION_TIME = 2 * HEART_BEAT_TIME * 1000
 
 def check_for_failures():
     for key in heartbeat_arr.keys():
@@ -40,7 +40,9 @@ def check_for_failures():
     
             print(current_milli_time() - heartbeat_arr[key][0])
             heartbeat_arr[key] = (-1, heartbeat_arr[key][1], heartbeat_arr[key][2])
-            del CLIENTS[heartbeat_arr[key][2]]
+            sock = heartbeat_arr[key][2]
+            sock.close()
+            del CLIENTS[sock]
             send_message('f|' + str(key) + '|' + heartbeat_arr[key][1] + ' disconnected and left the chat')
             # check if messages can be sent now that there is one less client
             for key_proposals in received_proposals:
@@ -99,13 +101,17 @@ def send_proposed_msg(pid, seq_num):
 def check_if_messages_can_be_delievered():
     global message_number_we_are_on
     while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] <= message_number_we_are_on:
-        sys.stdout.write(ERASE_LINE + '\r')
-        sys.stdout.write(p_queue_deliverable.get()[2])
-        sys.stdout.flush()
-        if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] <= message_number_we_are_on:
-            message_number_we_are_on -= 1
-        message_number_we_are_on += 1
-        prompt()
+        sender_sock = p_queue_deliverable.queue[0][1] 
+        if heartbeat_arr[sender_sock][0] == -1:
+            p_queue_deliverable.get()
+        else:
+            sys.stdout.write(ERASE_LINE + '\r')
+            sys.stdout.write(p_queue_deliverable.get()[2])
+            sys.stdout.flush()
+            if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] <= message_number_we_are_on:
+                message_number_we_are_on -= 1
+            message_number_we_are_on += 1
+            prompt()
 
 def send_message(msg):
     for s in SEND_SOCKS.keys()[::-1]:
@@ -148,8 +154,6 @@ if __name__=="__main__":
 
     thread_fail = threading.Thread(target = handleFailures)
     thread_connect = threading.Thread(target = handleConnections)
-    thread_fail.DAEMON = True
-    thread_connect.DAEMON = True
     thread_connect.start()
     thread_fail.start()
     connect_to_send_socks()
@@ -176,12 +180,15 @@ if __name__=="__main__":
                 msg = sock.recv(RECV_BUFFER)
                 data_split = msg.split('<')
                 if len(msg) == 0:
+                    pass
+                    '''
                     sys.stdout.write("\r" + CLIENTS[sock] + " disconnected and left the room\n")
                     sys.stdout.flush()
                     del CLIENTS[sock]
                     DISCONNECTED_CLIENTS.add(sock)
                     sock.close()
                     prompt()
+                    '''
                 elif msg[0] == 'w':
                     heartbeat_msg_split = msg.split('|')
                     key = int(heartbeat_msg_split[1])
@@ -192,10 +199,14 @@ if __name__=="__main__":
                     failure_msg_split = msg.split('|')
                     pid = int(failure_msg_split[1])
                     if heartbeat_arr[pid][0] != -1:
-                        heartbeat_arr[pid] = (-1, heartbeat_arr[pid][1], heartbeat_arr[pid][2])
+                        failed_sock = heartbeat_arr[pid][2]
+                        heartbeat_arr[pid] = (-1, heartbeat_arr[pid][1], failed_sock)
                         sys.stdout.write('\r' + failure_msg_split[2])
                         sys.stdout.flush()
+                        del CLIENTS[failed_sock]
+                        failed_sock.close()
                         send_message(msg)
+                        prompt()
                 elif len(data_split[3]) > 0 and len(data_split[4]) > 0: # send process gave agreed_num for his msg. Add it to your p_queue
                     process_id = int(data_split[0])
                     index = process_id - 1
