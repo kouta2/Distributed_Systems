@@ -39,7 +39,7 @@ def check_for_failures():
         if heartbeat_arr[key][0] != -1 and current_milli_time() - heartbeat_arr[key][0] > WORST_CASE_DETECTION_TIME:
             heartbeat_arr[key] = (-1, heartbeat_arr[key][1], heartbeat_arr[key][2])
             del CLIENTS[heartbeat_arr[key][2]]
-            send_message('f|' + str(key) + '|' + hearbeat_arr[i][1] + ' disconnected and left the chat')
+            send_message('f|' + str(key) + '|' + heartbeat_arr[i][1] + ' disconnected and left the chat')
             # check if messages can be sent now that there is one less client
             for key_proposals in received_proposals:
                 send_agreed_msg_if_ready(str(PROCESS_NUM), key_proposals)
