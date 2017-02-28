@@ -36,6 +36,8 @@ WORST_CASE_DETECTION_TIME = 100 * HEART_BEAT_TIME * 1000
 address_to_send_socket = {}
 client_socket_to_addr = {}
 
+num_deliverables = 1
+
 def check_for_failures():
     for key in heartbeat_arr.keys():
         if heartbeat_arr[key][0] != -1 and current_milli_time() - heartbeat_arr[key][0] > WORST_CASE_DETECTION_TIME:
@@ -114,7 +116,8 @@ def send_proposed_msg(pid, seq_num, ip_address):
 
 def check_if_messages_can_be_delievered():
     global message_number_we_are_on
-    while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] <= message_number_we_are_on:
+    global num_of_deliverables
+    while len(p_queue_deliverable.queue) > 0 and  p_queue_deliverable.queue[0][0] == num_of_deliverables:
         sender_sock = p_queue_deliverable.queue[0][1] 
         if heartbeat_arr[sender_sock][0] == -1:
             p_queue_deliverable.get()
@@ -122,9 +125,9 @@ def check_if_messages_can_be_delievered():
             sys.stdout.write(ERASE_LINE + '\r')
             sys.stdout.write(p_queue_deliverable.get()[2])
             sys.stdout.flush()
-            if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] <= message_number_we_are_on:
-                message_number_we_are_on -= 1
-            message_number_we_are_on += 1
+            if len(p_queue_deliverable.queue) > 0 and p_queue_deliverable.queue[0][0] == num_of_deliverables:
+                num_of_deliverables -= 1
+            num_of_deliverables += 1
             prompt()
 
 def send_message(msg):
