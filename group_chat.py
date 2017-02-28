@@ -38,7 +38,6 @@ def check_for_failures():
     for key in heartbeat_arr.keys():
         if heartbeat_arr[key][0] != -1 and current_milli_time() - heartbeat_arr[key][0] > WORST_CASE_DETECTION_TIME:
     
-            print(current_milli_time() - heartbeat_arr[key][0])
             heartbeat_arr[key] = (-1, heartbeat_arr[key][1], heartbeat_arr[key][2])
             sock = heartbeat_arr[key][2]
             sock.close()
@@ -195,7 +194,6 @@ if __name__=="__main__":
                     heartbeat_arr[key] = (current_milli_time(), heartbeat_arr[key][1], heartbeat_arr[key][2])
                     check_for_failures()
                 elif msg[0] == 'f':
-                    print(msg)
                     failure_msg_split = msg.split('|')
                     pid = int(failure_msg_split[1])
                     if heartbeat_arr[pid][0] != -1:
