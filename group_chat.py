@@ -42,7 +42,11 @@ def check_for_failures():
             sock = heartbeat_arr[key][2]
             sock.close()
             del CLIENTS[sock]
-            send_message('f|' + str(key) + '|' + heartbeat_arr[key][1] + ' disconnected and left the chat')
+            failure_msg = heartbeat_arr[key][1] + ' disconnected and left the chat\n'
+            send_message('f|' + str(key) + '|' + failure_msg)
+            sys.stdout.write('\r' + failure_msg)
+            sys.stdout.flush()
+            prompt()
             # check if messages can be sent now that there is one less client
             for key_proposals in received_proposals:
                 send_agreed_msg_if_ready(str(PROCESS_NUM), key_proposals)
@@ -176,7 +180,9 @@ if __name__=="__main__":
                 else:
                     prompt()
             else:
-                msg = sock.recv(RECV_BUFFER)
+                msg = ''
+                if sock in CLIENTS:
+                    msg = sock.recv(RECV_BUFFER)
                 data_split = msg.split('<')
                 if len(msg) == 0:
                     pass
