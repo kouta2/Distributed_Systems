@@ -33,6 +33,8 @@ heartbeat_arr = {} # maps pid to (last time stamp of heartbeat, username, sock) 
 current_milli_time = lambda: int(round(time.time() * 1000))
 HEART_BEAT_TIME = .2
 WORST_CASE_DETECTION_TIME = 7 * HEART_BEAT_TIME * 1000
+address_to_send_socket = {}
+client_socket_to_addr = {}
 
 def check_for_failures():
     for key in heartbeat_arr.keys():
@@ -40,8 +42,14 @@ def check_for_failures():
     
             heartbeat_arr[key] = (-1, heartbeat_arr[key][1], heartbeat_arr[key][2])
             sock = heartbeat_arr[key][2]
+            addr = client_socket_to_addr[sock]
             sock.close()
+            send_sock = address_to_send_socket[addr]
+            send_sock.close()
+            del address_to_send_socket[addr]
+            del SEND_SOCKS[send_sock]
             del CLIENTS[sock]
+
             failure_msg = heartbeat_arr[key][1] + ' disconnected and left the chat\n'
             send_message('f|' + str(key) + '|' + failure_msg)
             sys.stdout.write('\r' + failure_msg)
@@ -71,26 +79,26 @@ def handleConnections():
                 sockfd, addr = server_socket.accept()
                 username_pid_client = sockfd.recv(RECV_BUFFER)
                 username_pid_split = username_pid_client.split('|')
+                client_socket_to_addr[sockfd] = addr
                 CLIENTS[sockfd] = username_pid_split[0]
                 heartbeat_arr[int(username_pid_split[1])] = (-1, username_pid_split[0], sockfd)
             except:
                 break
 
-
 def prompt():
     sys.stdout.write('<' + USERNAME + '> ')
     sys.stdout.flush()
 
-# PROCESS Number < sequence number < proposed number < agreed # < msg
+# PROCESS Number < sequence number < proposed number < agreed # < msg < ip_address
 def create_process_init_message():
-    return str(PROCESS_NUM) + '<' + str(number_of_multicasts) + '<' + '<' + '<'
+    return str(PROCESS_NUM) + '<' + str(number_of_multicasts) + '<' + '<' + '<' + '<' + socket.gethostbyname(socket.gethostname()) + '<'
 
 def create_proposed_order_number_message(pid, seq_num, prop_num):
-    return pid + '<' + seq_num + '<' + str(prop_num) + '<' + '<'
+    return pid + '<' + seq_num + '<' + str(prop_num) + '<' + '<' + '<'
 
 # assuming msg starts with '<'
 def create_agreed_number_message(pid, seq_num, agreed_num, msg):
-    return pid + '<' + str(seq_num) + '<' + '<' + str(agreed_num) + msg
+    return pid + '<' + str(seq_num) + '<' + '<' + str(agreed_num) + msg + '<'
 
 def send_agreed_msg_if_ready(pid, seq_num):
     if received_proposals[seq_num][1] == len(CLIENTS.keys()):
@@ -98,8 +106,9 @@ def send_agreed_msg_if_ready(pid, seq_num):
         del received_proposals[seq_num]
         del local_messages[seq_num]
 
-def send_proposed_msg(pid, seq_num):
-    send_message(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
+def send_proposed_msg(pid, seq_num, ip_address):
+    address_to_send_socket[ip_address].send(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
+    # send_message(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
 
 def check_if_messages_can_be_delievered():
     global message_number_we_are_on
@@ -130,12 +139,12 @@ def connect_to_send_socks():
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
+                address_to_send_socket[host] = s
                 s.send(USERNAME + '|' + str(PROCESS_NUM))
             except:
                 pass
 
 def signal_handler(signal, frame):
-    print('hi')
     for elem in SEND_SOCKS.keys():
         elem.close()
     for elem in CLIENTS.keys():
@@ -183,17 +192,11 @@ if __name__=="__main__":
                 msg = ''
                 if sock in CLIENTS:
                     msg = sock.recv(RECV_BUFFER)
+                else:
+                    continue
                 data_split = msg.split('<')
                 if len(msg) == 0:
                     pass
-                    '''
-                    sys.stdout.write("\r" + CLIENTS[sock] + " disconnected and left the room\n")
-                    sys.stdout.flush()
-                    del CLIENTS[sock]
-                    DISCONNECTED_CLIENTS.add(sock)
-                    sock.close()
-                    prompt()
-                    '''
                 elif msg[0] == 'w':
                     heartbeat_msg_split = msg.split('|')
                     key = int(heartbeat_msg_split[1])
@@ -218,7 +221,10 @@ if __name__=="__main__":
                         sequence_numbers_of_processes[index] = int(data_split[1])
                         if process_id != PROCESS_NUM:
                             send_message(msg)
-                        p_queue_deliverable.put((int(data_split[3]), int(data_split[0]), '<' + data_split[4]))
+                        p_queue_msg = '<'
+                        for i in range(4, len(data_split) - 1):
+                            p_queue_msg += data_split[i]
+                        p_queue_deliverable.put((int(data_split[3]), int(data_split[0]), p_queue_msg))
                         check_if_messages_can_be_delievered()
                         
                 elif len(data_split[0]) > 0 and len(data_split[1]) > 0 and len(data_split[2]) > 0: # check if pid is our pid, if so, find max prop_num
@@ -234,4 +240,4 @@ if __name__=="__main__":
                         send_agreed_msg_if_ready(data_split[0], seq_num)
 
                 elif len(data_split[0]) > 0 and len(data_split[1]) > 0: # a process declared they want to send a msg, send a prop_num
-                    send_proposed_msg(data_split[0], data_split[1])
+                    send_proposed_msg(data_split[0], data_split[1], data_split[5])
