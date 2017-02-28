@@ -48,7 +48,7 @@ def handleFailures():
     # send heartbeat msg
     while 1:
         time.sleep(HEART_BEAT_TIME)
-        send_message('we here boizzz|' + str(PROCESS_NUM))
+        send_message('we here boizzz|' + str(PROCESS_NUM) + '|')
 
 def handleConnections():
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
