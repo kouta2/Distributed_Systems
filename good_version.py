@@ -51,7 +51,7 @@ def check_for_failures():
             del CLIENTS[sock]
 
             failure_msg = heartbeat_arr[key][1] + ' disconnected and left the chat\n'
-            send_message('f|' + str(key) + '|' + failure_msg)
+            send_message('f<' + str(key) + '<' + failure_msg)
             sys.stdout.write('\r' + failure_msg)
             sys.stdout.flush()
             prompt()
@@ -63,7 +63,7 @@ def handleFailures():
     # send heartbeat msg
     while 1:
         time.sleep(HEART_BEAT_TIME)
-        send_message('we here boizzz|' + str(PROCESS_NUM) + '|')
+        send_message('we here boizzz<' + str(PROCESS_NUM) + '<')
 
 def handleConnections():
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -78,7 +78,7 @@ def handleConnections():
             try:
                 sockfd, addr = server_socket.accept()
                 username_pid_client = sockfd.recv(RECV_BUFFER)
-                username_pid_split = username_pid_client.split('|')
+                username_pid_split = username_pid_client.split('<')
                 # client_socket_to_addr[sockfd] = addr[0]
                 CLIENTS[sockfd] = username_pid_split[0]
                 heartbeat_arr[int(username_pid_split[1])] = (-1, username_pid_split[0], sockfd)
@@ -143,7 +143,7 @@ def connect_to_send_socks():
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
                 # address_to_send_socket[host] = s
-                s.send(USERNAME + '|' + str(PROCESS_NUM))
+                s.send(USERNAME + '<' + str(PROCESS_NUM))
             except:
                 pass
 
@@ -203,13 +203,13 @@ if __name__=="__main__":
                     pass
 
                 elif msg[0] == 'w':
-                    heartbeat_msg_split = msg.split('|')
+                    heartbeat_msg_split = msg.split('<')
                     key = int(heartbeat_msg_split[1])
                     heartbeat_arr[key] = (current_milli_time(), heartbeat_arr[key][1], heartbeat_arr[key][2])
                     check_for_failures()
 
                 elif msg[0] == 'f':
-                    failure_msg_split = msg.split('|')
+                    failure_msg_split = msg.split('<')
                     pid = int(failure_msg_split[1])
                     if heartbeat_arr[pid][0] != -1:
                         failed_sock = heartbeat_arr[pid][2]

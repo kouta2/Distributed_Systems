@@ -51,7 +51,9 @@ def check_for_failures():
             del CLIENTS[sock]
 
             failure_msg = heartbeat_arr[key][1] + ' disconnected and left the chat\n'
-            send_message('f<' + str(key) + '<' + failure_msg)
+            send_msg = '<f<' + str(key) + '<' + failure_msg
+            send_msg = str(len(failure_msg)) + failure_msg
+            send_message(send_msg)
             sys.stdout.write('\r' + failure_msg)
             sys.stdout.flush()
             prompt()
@@ -63,7 +65,9 @@ def handleFailures():
     # send heartbeat msg
     while 1:
         time.sleep(HEART_BEAT_TIME)
-        send_message('we here boizzz<' + str(PROCESS_NUM) + '<')
+        send_msg = '<we here boizzz<' + str(PROCESS_NUM) + '<'
+        send_msg = str(len(send_msg)) + send_msg
+        send_message(send_msg)
 
 def handleConnections():
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -91,17 +95,17 @@ def prompt():
 
 # PROCESS Number < sequence number < proposed number < agreed # < msg < ip_address
 def create_process_init_message():
-    string = str(PROCESS_NUM) + '<' + str(number_of_multicasts) + '<' + '<' + '<' + '<' + socket.gethostbyname(socket.gethostname()) + '<'
-    return string # len(string) + string
+    string = '<' + str(PROCESS_NUM) + '<' + str(number_of_multicasts) + '<' + '<' + '<' + '<' + socket.gethostbyname(socket.gethostname()) + '<'
+    return str(len(string)) + string
 
 def create_proposed_order_number_message(pid, seq_num, prop_num):
-    string = pid + '<' + seq_num + '<' + str(prop_num) + '<' + '<' + '<'
-    return string # len(string) + string
+    string = '<' + pid + '<' + seq_num + '<' + str(prop_num) + '<' + '<' + '<'
+    return str(len(string)) + string
 
 # assuming msg starts with '<'
 def create_agreed_number_message(pid, seq_num, agreed_num, msg):
-    string = pid + '<' + str(seq_num) + '<' + '<' + str(agreed_num) + msg + '<'
-    return string # len(string) + string
+    string = '<' + pid + '<' + str(seq_num) + '<' + '<' + str(agreed_num) + msg
+    return str(len(string)) + string
 
 def send_agreed_msg_if_ready(pid, seq_num):
     if received_proposals[seq_num][1] == len(CLIENTS.keys()):
@@ -197,54 +201,59 @@ if __name__=="__main__":
                     msg = sock.recv(RECV_BUFFER)
                 else:
                     continue
-                data_split = msg.split('<')
+                start_index = 0
+                index = msg.find('<')
+                while index != -1:
+                    len_of_msg = int(msg[start_index : index])
+                    data = msg[index + 1: index + len_of_msg]
+                    data_split = data.split('<')
+                    if len(msg) == 0:
+                        pass
 
-                if len(msg) == 0:
-                    pass
+                    elif data_split[0][0] == 'w':
+                        key = int(data_split[1])
+                        heartbeat_arr[key] = (current_milli_time(), heartbeat_arr[key][1], heartbeat_arr[key][2])
+                        check_for_failures()
 
-                elif msg[0] == 'w':
-                    heartbeat_msg_split = msg.split('<')
-                    key = int(heartbeat_msg_split[1])
-                    heartbeat_arr[key] = (current_milli_time(), heartbeat_arr[key][1], heartbeat_arr[key][2])
-                    check_for_failures()
-
-                elif msg[0] == 'f':
-                    failure_msg_split = msg.split('<')
-                    pid = int(failure_msg_split[1])
-                    if heartbeat_arr[pid][0] != -1:
-                        failed_sock = heartbeat_arr[pid][2]
-                        heartbeat_arr[pid] = (-1, heartbeat_arr[pid][1], failed_sock)
-                        sys.stdout.write('\r' + failure_msg_split[2])
-                        sys.stdout.flush()
-                        del CLIENTS[failed_sock]
-                        failed_sock.close()
-                        send_message(msg)
-                        prompt()
-
-                elif len(data_split[3]) > 0 and len(data_split[4]) > 0: # send process gave agreed_num for his msg. Add it to your p_queue
-                    process_id = int(data_split[0])
-                    index = process_id - 1
-                    if sequence_numbers_of_processes[index] < int(data_split[1]):
-                        sequence_numbers_of_processes[index] = int(data_split[1])
-                        if process_id != PROCESS_NUM:
+                    elif data_split[0][0] == 'f':
+                        pid = int(data_split[1])
+                        if heartbeat_arr[pid][0] != -1:
+                            failed_sock = heartbeat_arr[pid][2]
+                            heartbeat_arr[pid] = (-1, heartbeat_arr[pid][1], failed_sock)
+                            sys.stdout.write('\r' + data_split[2])
+                            sys.stdout.flush()
+                            del CLIENTS[failed_sock]
+                            failed_sock.close()
                             send_message(msg)
-                        p_queue_msg = '<'
-                        for i in range(4, len(data_split) - 1):
-                            p_queue_msg += data_split[i]
-                        p_queue_deliverable.put((int(data_split[3]), int(data_split[0]), p_queue_msg))
-                        check_if_messages_can_be_delievered()
+                            prompt()
+
+                    elif len(data_split[3]) > 0 and len(data_split[4]) > 0: # send process gave agreed_num for his msg. Add it to your p_queue
+                        process_id = int(data_split[0])
+                        index = process_id - 1
+                        if sequence_numbers_of_processes[index] < int(data_split[1]):
+                            sequence_numbers_of_processes[index] = int(data_split[1])
+                            if process_id != PROCESS_NUM:
+                                send_message(msg)
+                            p_queue_msg = '<'
+                            for i in range(4, len(data_split) - 1):
+                                p_queue_msg += data_split[i]
+                            p_queue_deliverable.put((int(data_split[3]), int(data_split[0]), p_queue_msg))
+                            check_if_messages_can_be_delievered()
                         
-                elif len(data_split[0]) > 0 and len(data_split[1]) > 0 and len(data_split[2]) > 0: # check if pid is our pid, if so, find max prop_num
-                    if int(data_split[0]) == PROCESS_NUM:
-                        seq_num = int(data_split[1])
-                        if seq_num not in received_proposals:
-                            received_proposals[seq_num] = (int(data_split[2]), 1)
-                        else:
-                            curr_val = received_proposals[seq_num]
-                            max_num = max(curr_val[0], int(data_split[2]))
-                            received_proposals[seq_num] = (max_num, curr_val[1] + 1)
+                    elif len(data_split[0]) > 0 and len(data_split[1]) > 0 and len(data_split[2]) > 0: # check if pid is our pid, if so, find max prop_num
+                        if int(data_split[0]) == PROCESS_NUM:
+                            seq_num = int(data_split[1])
+                            if seq_num not in received_proposals:
+                                received_proposals[seq_num] = (int(data_split[2]), 1)
+                            else:
+                                curr_val = received_proposals[seq_num]
+                                max_num = max(curr_val[0], int(data_split[2]))
+                                received_proposals[seq_num] = (max_num, curr_val[1] + 1)
 
-                        send_agreed_msg_if_ready(data_split[0], seq_num)
+                            send_agreed_msg_if_ready(data_split[0], seq_num)
 
-                elif len(data_split[0]) > 0 and len(data_split[1]) > 0: # a process declared they want to send a msg, send a prop_num
-                    send_proposed_msg(data_split[0], data_split[1], data_split[5])
+                    elif len(data_split[0]) > 0 and len(data_split[1]) > 0: # a process declared they want to send a msg, send a prop_num
+                        send_proposed_msg(data_split[0], data_split[1], data_split[5])
+
+                    start_index = index + len_of_msg + 1
+                    index = msg[start_index:].find('<')
