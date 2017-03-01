@@ -204,7 +204,6 @@ if __name__=="__main__":
 
                 elif msg[0] == 'w':
                     heartbeat_msg_split = msg.split('|')
-                    print(heartbeat_msg_split)
                     key = int(heartbeat_msg_split[1])
                     heartbeat_arr[key] = (current_milli_time(), heartbeat_arr[key][1], heartbeat_arr[key][2])
                     check_for_failures()
