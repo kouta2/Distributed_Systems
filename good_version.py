@@ -32,9 +32,7 @@ received_proposals = {} # maps seq_num to tuple containing current max and numbe
 heartbeat_arr = {} # maps pid to (last time stamp of heartbeat, username, sock) # [-1 for x in range(10)]
 current_milli_time = lambda: int(round(time.time() * 1000))
 HEART_BEAT_TIME = .5
-WORST_CASE_DETECTION_TIME = 4 * HEART_BEAT_TIME * 1000
-address_to_send_socket = {}
-client_socket_to_addr = {}
+WORST_CASE_DETECTION_TIME = 6 * HEART_BEAT_TIME * 1000
 
 def check_for_failures():
     for key in heartbeat_arr.keys():
@@ -42,12 +40,7 @@ def check_for_failures():
     
             heartbeat_arr[key] = (-1, heartbeat_arr[key][1], heartbeat_arr[key][2])
             sock = heartbeat_arr[key][2]
-            # addr = client_socket_to_addr[sock]
             sock.close()
-            # send_sock = address_to_send_socket[addr]
-            # send_sock.close()
-            # del address_to_send_socket[addr]
-            # del SEND_SOCKS[send_sock]
             del CLIENTS[sock]
 
             failure_msg = heartbeat_arr[key][1] + ' disconnected and left the chat\n'
@@ -79,7 +72,6 @@ def handleConnections():
                 sockfd, addr = server_socket.accept()
                 username_pid_client = sockfd.recv(RECV_BUFFER)
                 username_pid_split = username_pid_client.split('<')
-                # client_socket_to_addr[sockfd] = addr[0]
                 CLIENTS[sockfd] = username_pid_split[0]
                 heartbeat_arr[int(username_pid_split[1])] = (-1, username_pid_split[0], sockfd)
             except:
@@ -110,7 +102,6 @@ def send_agreed_msg_if_ready(pid, seq_num):
         del local_messages[seq_num]
 
 def send_proposed_msg(pid, seq_num, ip_address):
-    # address_to_send_socket[ip_address].send(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
     send_message(create_proposed_order_number_message(pid, seq_num, message_number_we_are_on))
 
 def check_if_messages_can_be_delievered():
@@ -142,7 +133,6 @@ def connect_to_send_socks():
             try:
                 s.connect((host, PORT))
                 SEND_SOCKS[s] = host
-                # address_to_send_socket[host] = s
                 s.send(USERNAME + '<' + str(PROCESS_NUM))
             except:
                 pass
@@ -156,6 +146,7 @@ def signal_handler(signal, frame):
     server_socket.close()
     thread_connect.join()
     thread_fail.join()
+    f.close()
     sys.exit()
 
 if __name__=="__main__":
@@ -173,7 +164,6 @@ if __name__=="__main__":
     thread_fail.start()
     connect_to_send_socks()
     prompt()
-
     while 1:
         read_sockets, write_sockets, error_sockets = select.select(CLIENTS.keys() + [sys.stdin], [], [], 0)
 
